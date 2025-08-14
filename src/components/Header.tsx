@@ -1,25 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import { useAuth, SignInButton, UserButton } from "@clerk/clerk-react";
-import { Menu, Bell } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
+import { NotificationPopover } from "./NotificationPopover";
 
 export function Header() {
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
-    <nav className={cn("flex items-center gap-6 text-sm font-medium", mobile && "flex-col items-start gap-4")}>
-      <Link to="/" className="hover:font-semibold transition-all delay-75" onClick={() => mobile && setIsOpen(false)}>
+    <nav className={cn("flex items-center gap-6 text-base font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
+      <Link to="/" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         Vehicles
       </Link>
-      <Link to="/" className="hover:font-semibold transition-all delay-75" onClick={() => mobile && setIsOpen(false)}>
+      <Link to="/" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         About Us
       </Link>
-      <Link to="/" className="hover:font-semibold transition-all delay-75"  onClick={() => mobile && setIsOpen(false)}>
+      <Link to="/" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         Become a Host
       </Link>
     </nav>
@@ -58,7 +59,7 @@ export function Header() {
               Login
             </Button>
           </SignInButton>
-          <Link to="/login">
+          <Link to="/auth/signup">
             <Button variant={"secondary"} className={cn("bg-primary text-primary-foreground hover:bg-primary/90", mobile && "w-full")}>
               Sign up
             </Button>
@@ -83,9 +84,7 @@ export function Header() {
         {/* Desktop Auth Buttons */}
         <div className="flex gap-1">
           <div className="flex gap-2">
-            <Button variant={"ghost"}>
-              <Bell className="size-6" />
-            </Button>
+            <NotificationPopover />
             <div className="hidden md:block">
               <AuthButtons />
             </div>
