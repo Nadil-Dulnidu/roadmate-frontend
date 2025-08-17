@@ -10,7 +10,7 @@ export function NotificationPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="secondary"><Bell className="size-6" /></Button>
+        <Button variant="ghost"><Bell className="size-6" /></Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 max-h-80 overflow-auto">
         <div className="grid gap-4">
