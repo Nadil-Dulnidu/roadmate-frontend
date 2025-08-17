@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import {vehicle} from "@/data/mockData";
+import { vehicle } from "@/data/mockData";
 import type { Vehicle } from "@/lib/types";
 import VehicleCard from "./VehicleCard";
 
