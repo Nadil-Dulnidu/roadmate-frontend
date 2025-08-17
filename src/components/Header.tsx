@@ -7,20 +7,39 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
 import { NotificationPopover } from "./NotificationPopover";
+import BecomeHostDialog from "./BeacomeHostDialog";
+import { SignupDialog } from "./SignUpDialog";
 
 export function Header() {
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isBecomeHostDialogOpen, setIsBecomeHostDialogOpen] = useState(false);
+  const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false);
+
+  const handleSubmit = () => {
+    if (!isSignedIn) {
+      setIsSignupDialogOpen(true);
+      return;
+    }
+    setIsBecomeHostDialogOpen(true);
+  };
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
     <nav className={cn("flex items-center gap-6 text-base font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
-      <Link to="/" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
+      <Link to="/vehicle/listing" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         Vehicles
       </Link>
-      <Link to="/" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
+      <Link to="/about" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         About Us
       </Link>
-      <Link to="/" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
+      <Link
+        to="#"
+        className="hover:text-black"
+        onClick={() => {
+          if (mobile) setIsOpen(false);
+          handleSubmit();
+        }}
+      >
         Become a Host
       </Link>
     </nav>
@@ -70,56 +89,60 @@ export function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 py-2 text-black bg-white w-full ">
-      <div className="container flex flex-wrap h-14 items-center justify-between mx-auto px-8">
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <img src={logo} alt="SkillMentor Logo" className="size-12 rounded-full" />
-            <span className="font-semibold text-xl">RoadMate</span>
-          </Link>
-          <div className="ml-6 hidden md:block">
-            <NavItems />
-          </div>
-        </div>
-        {/* Desktop Auth Buttons */}
-        <div className="flex gap-1">
-          <div className="flex gap-2">
-            <NotificationPopover />
-            <div className="hidden md:block">
-              <AuthButtons />
+    <>
+      <header className="sticky top-0 z-50 py-2 text-black bg-white w-full ">
+        <div className="container flex flex-wrap h-14 items-center justify-between mx-auto px-8">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src={logo} alt="SkillMentor Logo" className="size-12 rounded-full" />
+              <span className="font-semibold text-xl">RoadMate</span>
+            </Link>
+            <div className="ml-6 hidden md:block">
+              <NavItems />
             </div>
           </div>
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild className="border-primary">
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                  <Menu className="size-6 text-black" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-white text-black p-6">
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between mb-8">
-                    <Link to="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                      <img src={logo} alt="SkillMentor Logo" className="size-10 rounded-full" />
-                      <span className="font-semibold text-lg">RoadMate</span>
-                    </Link>
-                  </div>
+          {/* Desktop Auth Buttons */}
+          <div className="flex gap-1">
+            <div className="flex gap-2">
+              <NotificationPopover />
+              <div className="hidden md:block">
+                <AuthButtons />
+              </div>
+            </div>
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild className="border-primary">
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                    <Menu className="size-6 text-black" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] bg-white text-black p-6">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-8">
+                      <Link to="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+                        <img src={logo} alt="SkillMentor Logo" className="size-10 rounded-full" />
+                        <span className="font-semibold text-lg">RoadMate</span>
+                      </Link>
+                    </div>
 
-                  <div className="space-y-6 flex-1">
-                    <NavItems mobile />
-                  </div>
+                    <div className="space-y-6 flex-1">
+                      <NavItems mobile />
+                    </div>
 
-                  <div className="pt-6 border-t border-white/10">
-                    <AuthButtons mobile />
+                    <div className="pt-6 border-t border-white/10">
+                      <AuthButtons mobile />
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+      <BecomeHostDialog isOpen={isBecomeHostDialogOpen} onClose={() => setIsBecomeHostDialogOpen(false)} />
+      <SignupDialog isOpen={isSignupDialogOpen} onClose={() => setIsSignupDialogOpen(false)} />
+    </>
   );
 }
