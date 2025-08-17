@@ -1,4 +1,4 @@
-import { FeaturedVehicles } from "@/components/FeaturedVehicles";
+import { FeaturedVehicles } from "@/features/vehicle/FeaturedVehicles";
 import { Hero } from "@/components/Hero";
 import TestimonialSection from "@/components/testimonialSection";
 import { Helmet } from "react-helmet";

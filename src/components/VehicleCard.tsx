@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { Vehicle } from "@/lib/types";
+import type { FullVehicle } from "@/lib/types";
 import { BookCheckIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
@@ -7,7 +7,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { SignupDialog } from "./SignUpDialog";
 import { Link } from "react-router";
 
-const VehicleCard = ({ vehicle }: { vehicle: Vehicle }) => {
+const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false);
   const { isSignedIn } = useAuth();
 
