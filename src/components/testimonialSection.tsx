@@ -54,7 +54,7 @@ const TestimonialSection = () => {
             {testimonials.map((testimonial, index) => (
               <CarouselItem className="pl-1 lg:basis-1/3">
                 <div className="p-2">
-                  <Card key={index} className="p-8 rounded-xl bg-gray-50 text-black">
+                  <Card key={index} className="p-8 rounded-xl bg-muted text-black">
                     <CardContent className="p-6">
                       <div className="mb-4">
                         <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">

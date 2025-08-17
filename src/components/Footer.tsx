@@ -10,11 +10,11 @@ export function Footer() {
           {/* About Column */}
           <div>
             <h3 className="text-lg font-semibold mb-4">About</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3 ">
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Help center
                 </Link>
@@ -22,7 +22,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Careers
                 </Link>
@@ -30,7 +30,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Press
                 </Link>
@@ -45,7 +45,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   SkillMentor for kids
                 </Link>
@@ -53,7 +53,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   SkillMentor for business
                 </Link>
@@ -61,7 +61,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Become a tutor
                 </Link>
@@ -69,7 +69,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Become an ambassador
                 </Link>
@@ -84,7 +84,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Privacy policy
                 </Link>
@@ -92,7 +92,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-primary transition-colors"
+                  className="text-gray-400 hover:text-secondary transition-colors"
                 >
                   Terms and conditions
                 </Link>
@@ -106,28 +106,28 @@ export function Footer() {
             <div className="flex space-x-4">
               <Link
                 to="/"
-                className="text-gray-400 hover:text-primary transition-colors"
+                className="text-gray-400 hover:text-secondary transition-colors"
               >
                 <Instagram className="h-6 w-6" />
                 <span className="sr-only">Instagram</span>
               </Link>
               <Link
                 to="/"
-                className="text-gray-400 hover:text-primary transition-colors"
+                className="text-gray-400 hover:text-secondary transition-colors"
               >
                 <Facebook className="h-6 w-6" />
                 <span className="sr-only">Facebook</span>
               </Link>
               <Link
                 to="/"
-                className="text-gray-400 hover:text-primary transition-colors"
+                className="text-gray-400 hover:text-secondary transition-colors"
               >
                 <Youtube className="h-6 w-6" />
                 <span className="sr-only">YouTube</span>
               </Link>
               <Link
                 to="/"
-                className="text-gray-400 hover:text-primary transition-colors"
+                className="text-gray-400 hover:text-secondary transition-colors"
               >
                 <Twitter className="h-6 w-6" />
                 <span className="sr-only">Twitter</span>

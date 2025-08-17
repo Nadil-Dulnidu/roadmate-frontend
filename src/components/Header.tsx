@@ -25,7 +25,7 @@ export function Header() {
   };
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
-    <nav className={cn("flex items-center gap-6 text-base font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
+    <nav className={cn("flex items-center gap-6 text-sm font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
       <Link to="/vehicle/listing" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         Vehicles
       </Link>
@@ -90,7 +90,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 py-2 text-black bg-white w-full ">
+      <header className="sticky top-0 z-50 py-2 text-black bg-white w-full border-b border-gray-100 shadow-sm">
         <div className="container flex flex-wrap h-14 items-center justify-between mx-auto px-8">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">

@@ -23,7 +23,7 @@ const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
     <>
       <Card key={vehicle.vehicle_id} className={`relative overflow-hidden rounded-2xl aspect-[3/2] sm:aspect-square group border`}>
         <Link to={`/vehicle/${vehicle.vehicle_id}`}>
-          <img src={vehicle.images[0].imageUrl} alt={vehicle.brand} className="absolute inset-0 w-full h-full object-cover" />
+          <img src={vehicle.images[0].image_url} alt={vehicle.brand} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent z-10" />
         </Link>
         <p className="absolute top-3 left-3 z-20 font-semibold text-sm text-black bg-white py-1 px-2 rounded-full">

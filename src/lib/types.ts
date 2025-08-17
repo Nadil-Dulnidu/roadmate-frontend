@@ -14,18 +14,13 @@ export interface FullVehicle {
   location: string;
   city: string;
   contact_number: string;
+  rating: number;
+  review_count: number;
   available: string;
-  owner: {
-    user_id: number;
-    clerk_id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    role: string;
-    created_at: string;
-  };
+  owner_id: string;
   images: {
     image_id: number;
-    imageUrl: string;
+    vehicle_id: number;
+    image_url: string;
   }[];
 };

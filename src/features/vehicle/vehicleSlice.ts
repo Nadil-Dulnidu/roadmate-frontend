@@ -35,14 +35,8 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
         { type: "Vehicle", id: result?.vehicle_id },
       ],
     }),
-    getVehicleByOwner: builder.query<EntityState<FullVehicle, number>, { ownerId: string; token: string | null }>({
-      query: ({ ownerId, token }) => ({
-        url: `/listing/vehicle/owner/${ownerId}`,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }),
+    getVehicleByOwner: builder.query<EntityState<FullVehicle, number>, number>({
+      query: (ownerId) => `/listing/vehicle/owner/${ownerId}`,
       transformResponse: (response: FullVehicle[]) => {
         return vehicleAdapter.setAll(initialState, response);
       },
