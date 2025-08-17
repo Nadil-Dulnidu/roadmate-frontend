@@ -1,7 +1,7 @@
 import type { JSX } from "react";
-import { Button } from "../../components/ui/button";
-import VehicleCard from "../../components/VehicleCard";
-import { selectAllVehicles, useGetVehiclesQuery } from "./vehicleSlice";
+import { Button } from "../../../components/ui/button";
+import VehicleCard from "./VehicleCard";
+import { selectAllVehicles, useGetVehiclesQuery } from "../vehicleSlice";
 import { useAppSelector } from "@/app/hook";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";

@@ -1,6 +1,6 @@
 import { VehicleGallery } from "../components/VehicleGallery";
 import { VehicleDetails } from "../components/VehicleDetails";
-import { BookingForm } from "../components/BookingForm";
+import { BookingForm } from "../../../components/BookingForm";
 import { useParams } from "react-router";
 import { useGetVehicleByIdQuery} from "@/features/vehicle/vehicleSlice";
 import type { JSX } from "react";

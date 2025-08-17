@@ -1,6 +1,6 @@
-import { FeaturedVehicles } from "@/features/vehicle/FeaturedVehicles";
-import { Hero } from "@/components/Hero";
-import TestimonialSection from "@/components/testimonialSection";
+import { FeaturedVehicles } from "@/features/vehicle/components/FeaturedVehicles";
+import { Hero } from "@/pages/home/components/Hero";
+import TestimonialSection from "@/pages/home/components/TestimonialSection";
 import { Helmet } from "react-helmet";
 const HomePage = () => {
   return (

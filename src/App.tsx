@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router";
 import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
-import VehicleProfilePage from "./pages/VehicleProfilePage";
+import HomePage from "./pages/home/HomePage";
+import VehicleProfilePage from "./features/vehicle/pages/VehicleProfilePage";
 import VehicleListPage from "./pages/VehicleListPage";
 
 function App() {

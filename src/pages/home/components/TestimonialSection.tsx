@@ -1,5 +1,5 @@
-import { Card, CardContent } from "./ui/card";
-import { Carousel, CarouselContent, CarouselItem } from "./ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 const TestimonialSection = () => {
