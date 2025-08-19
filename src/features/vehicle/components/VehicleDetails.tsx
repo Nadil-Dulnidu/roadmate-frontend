@@ -1,4 +1,4 @@
-import type { FullVehicle } from "@/lib/types";
+import type { FullVehicle } from "../vehicleTypes";
 import { Star, MapPin } from "lucide-react";
 
 export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {

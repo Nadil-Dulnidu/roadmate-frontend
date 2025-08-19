@@ -3,7 +3,8 @@ import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/home/HomePage";
 import VehicleProfilePage from "./features/vehicle/pages/VehicleProfilePage";
-import VehicleListPage from "./pages/VehicleListPage";
+import VehicleListPage from "./features/vehicle/pages/VehicleListPage";
+import CheckoutPage from "./features/payment/pages/CheckoutPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="listing" element={<VehicleListPage />} />
           <Route path=":vehicleId" element={<VehicleProfilePage />} />
         </Route>
+        <Route path="checkout/:checkoutId" element={<CheckoutPage />} />
       </Route>
       <Route path="auth">
         <Route path="signup" element={<LoginPage />} />

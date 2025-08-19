@@ -24,3 +24,5 @@ export interface FullVehicle {
     image_url: string;
   }[];
 };
+
+

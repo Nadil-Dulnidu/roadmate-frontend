@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { FullVehicle } from "@/lib/types";
+import type { FullVehicle } from "../vehicleTypes";
 import { BookCheckIcon } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { useState } from "react";

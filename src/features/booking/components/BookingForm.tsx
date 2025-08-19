@@ -1,15 +1,24 @@
 import React, { useState } from "react";
 import { CalendarIcon, Clock, Info } from "lucide-react";
-import type { FullVehicle } from "@/lib/types";
-import { Button } from "./ui/button";
+import type { FullVehicle } from "@/features/vehicle/vehicleTypes";
+import { Button } from "../../../components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { useUser, useAuth } from "@clerk/clerk-react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
+import { useCreateBookingMutation } from "../bookingSlice";
+import type { Booking, RentalStateDetails } from "../bookingTypes";
 
 export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const [createBooking] = useCreateBookingMutation();
 
   const calculateDays = () => {
     if (!startDate || !endDate) return 0;
@@ -23,15 +32,53 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
   const serviceFee = Math.round(subtotal * 0.1);
   const total = subtotal + serviceFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!startDate || !endDate) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      alert(`Booking submitted for ${vehicle.year} ${vehicle.brand} ${vehicle.model} from ${format(startDate, "PPP")} to ${format(endDate, "PPP")}`);
-      setIsSubmitting(false);
-    }, 1500);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!startDate || !endDate) return;
+
+  setIsSubmitting(true);
+
+  try {
+    const token = await getToken({ template: "RoadMate" });
+    console.log(user);
+
+    const bookingData: Booking = {
+      renter_id: user?.id, // todo: probably should use user?.id here
+      vehicle: vehicle,
+      start_date: startDate.toLocaleDateString(),
+      end_date: endDate.toLocaleDateString(),
+      total_price: total,
+      created_at: new Date().toISOString(),
+      status: "PENDING",
+    };
+
+    const data = await createBooking({
+      token,
+      booking: bookingData,
+    }).unwrap();
+
+    const stateData: RentalStateDetails = {
+      renter_id: user?.id,
+      booking_id: data.booking_id,
+      vehicle: vehicle,
+      start_date: startDate.toLocaleDateString(),
+      end_date: endDate.toLocaleDateString(),
+      total_price: total,
+      diff_days: days,
+      sub_total: subtotal,
+      service_fee: serviceFee
+    }
+    toast.success(`Booking submitted for ${vehicle.year} ${vehicle.brand} ${vehicle.model}`);
+    const checkoutId = `${vehicle.vehicle_id}-${Date.now()}`;
+    navigate(`/checkout/${checkoutId}`, { state: stateData });
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    toast.error("Failed to create booking");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div className="bg-card rounded-lg border p-6 sticky top-24">

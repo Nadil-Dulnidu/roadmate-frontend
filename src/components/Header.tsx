@@ -25,23 +25,26 @@ export function Header() {
   };
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
-    <nav className={cn("flex items-center gap-6 text-sm font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
-      <Link to="/vehicle/listing" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
+    <nav className={cn("flex items-center gap-5 text-sm font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
+      <Button variant={"ghost"} className="p-0 hover:bg-transparent">
+        <Link to="/vehicle/listing" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         Vehicles
       </Link>
-      <Link to="/about" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
+      </Button>
+      <Button variant={"ghost"} className="p-0 hover:bg-transparent">
+        <Link to="/about" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
         About Us
       </Link>
-      <Link
-        to="#"
-        className="hover:text-black"
+      </Button>
+      <Button variant={"ghost"}
+        className="hover:text-black hover:bg-transparent p-0"
         onClick={() => {
           if (mobile) setIsOpen(false);
           handleSubmit();
         }}
       >
         Become a Host
-      </Link>
+      </Button>
     </nav>
   );
   const AuthButtons = ({ mobile = false }: { mobile?: boolean }) => (

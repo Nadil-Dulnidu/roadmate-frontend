@@ -5,7 +5,7 @@ import {
   createEntityAdapter,
   type EntityState
 } from "@reduxjs/toolkit";
-import type { FullVehicle } from "@/lib/types";
+import type { FullVehicle } from "./vehicleTypes";
 
 const vehicleAdapter = createEntityAdapter<FullVehicle, number>({
   selectId: (vehicle) => vehicle.vehicle_id,
