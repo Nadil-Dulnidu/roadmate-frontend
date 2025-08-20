@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { useUser, useAuth } from "@clerk/clerk-react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useCreateBookingMutation } from "../bookingSlice";
 import type { Booking, RentalStateDetails } from "../bookingTypes";
@@ -17,7 +17,7 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   const [createBooking] = useCreateBookingMutation();
 
   const calculateDays = () => {
@@ -33,52 +33,51 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
   const total = subtotal + serviceFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!startDate || !endDate) return;
+    e.preventDefault();
+    if (!startDate || !endDate) return;
 
-  setIsSubmitting(true);
+    setIsSubmitting(true);
 
-  try {
-    const token = await getToken({ template: "RoadMate" });
-    console.log(user);
+    try {
+      const token = await getToken({ template: "RoadMate" });
+      console.log(user);
 
-    const bookingData: Booking = {
-      renter_id: user?.id, // todo: probably should use user?.id here
-      vehicle: vehicle,
-      start_date: startDate.toLocaleDateString(),
-      end_date: endDate.toLocaleDateString(),
-      total_price: total,
-      created_at: new Date().toISOString(),
-      status: "PENDING",
-    };
+      const bookingData: Booking = {
+        renter_id: user?.id,
+        vehicle: vehicle,
+        start_date: startDate.toLocaleDateString(),
+        end_date: endDate.toLocaleDateString(),
+        total_price: total,
+        created_at: new Date().toISOString(),
+        status: "PENDING",
+      };
 
-    const data = await createBooking({
-      token,
-      booking: bookingData,
-    }).unwrap();
+      const data = await createBooking({
+        token,
+        booking: bookingData,
+      }).unwrap();
 
-    const stateData: RentalStateDetails = {
-      renter_id: user?.id,
-      booking_id: data.booking_id,
-      vehicle: vehicle,
-      start_date: startDate.toLocaleDateString(),
-      end_date: endDate.toLocaleDateString(),
-      total_price: total,
-      diff_days: days,
-      sub_total: subtotal,
-      service_fee: serviceFee
+      const stateData: RentalStateDetails = {
+        renter_id: user?.id,
+        booking_id: data.booking_id,
+        vehicle: vehicle,
+        start_date: startDate.toLocaleDateString(),
+        end_date: endDate.toLocaleDateString(),
+        total_price: total,
+        diff_days: days,
+        sub_total: subtotal,
+        service_fee: serviceFee,
+      };
+      toast.success(`Booking submitted for ${vehicle.year} ${vehicle.brand} ${vehicle.model}`);
+      const checkoutId = `${vehicle.vehicle_id}-${Date.now()}`;
+      navigate(`/checkout/${checkoutId}`, { state: stateData });
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      toast.error("Failed to create booking");
+    } finally {
+      setIsSubmitting(false);
     }
-    toast.success(`Booking submitted for ${vehicle.year} ${vehicle.brand} ${vehicle.model}`);
-    const checkoutId = `${vehicle.vehicle_id}-${Date.now()}`;
-    navigate(`/checkout/${checkoutId}`, { state: stateData });
-  } catch (error) {
-    console.error("Error creating booking:", error);
-    toast.error("Failed to create booking");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+  };
 
   return (
     <div className="bg-card rounded-lg border p-6 sticky top-24">
@@ -141,20 +140,28 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
           )}
 
           {/* Booking Button */}
-          <Button
-            type="submit"
-            disabled={!startDate || !endDate || isSubmitting}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center disabled:opacity-90 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? (
-              <>
-                <Clock className="animate-spin mr-2 h-4 w-4" />
-                Processing...
-              </>
-            ) : (
-              "Book Now"
-            )}
-          </Button>
+          {isSignedIn ? (
+            <Button
+              type="submit"
+              disabled={!startDate || !endDate || isSubmitting}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center disabled:opacity-90 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <>
+                  <Clock className="animate-spin mr-2 h-4 w-4" />
+                  Processing...
+                </>
+              ) : (
+                "Book Now"
+              )}
+            </Button>
+          ) : (
+            <Link to="/auth/signup">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center disabled:opacity-90 disabled:cursor-not-allowed">
+                Sign in to Book
+              </Button>
+            </Link>
+          )}
         </div>
       </form>
 

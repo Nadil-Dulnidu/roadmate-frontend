@@ -1,9 +1,9 @@
 import type { RentalStateDetails } from '@/features/booking/bookingTypes';
 
 export function OrderSummary({vehicle}:{vehicle: RentalStateDetails}) {
-  return <div className="bg-white border border-gray-200 rounded-lg sticky top-4">
+  return <div className="bg-white border border-gray-200 rounded-lg sticky top-24">
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-black mb-4">Order Summary</h2>
+        <h2 className="text-lg font-semibold text-black mb-4">Booking Summary</h2>
         <div className="flex items-center mb-4">
           <img src={vehicle.vehicle.images[0].image_url} alt={vehicle.vehicle.model} className="w-20 h-20 object-cover rounded-md mr-4" />
           <div>

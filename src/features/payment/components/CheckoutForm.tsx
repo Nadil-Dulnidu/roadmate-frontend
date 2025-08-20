@@ -1,4 +1,4 @@
-import type { RentalStateDetails } from "@/features/booking/bookingTypes";
+import type { RentalStateDetails, Status } from "@/features/booking/bookingTypes";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import type { Stripe, StripeElements } from "@stripe/stripe-js";
 import { useState } from "react";
@@ -36,9 +36,9 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
     },
   });
 
-  const handlePayment = async () => {
+  const handlePayment = async ({ status }: { status: Status }) => {
     const token = await getToken({ template: "RoadMate" });
-    const { error } = await updateBooking({ token, id: stateData?.booking_id, status: "CONFIRMED" });
+    const { error } = await updateBooking({ token, id: stateData?.booking_id, status: status });
     if (error) {
       toast.error("Failed to update booking.");
     }
@@ -75,14 +75,15 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
         toast.error(`Payment failed: ${result.error.message}`);
       } else if ("paymentIntent" in result && result.paymentIntent?.status === "succeeded") {
         toast.success("Payment succeeded!");
-        handlePayment();
+        handlePayment({ status: "CONFIRMED" });
       }
     } catch (err) {
       console.error("Payment error:", err);
+      handlePayment({ status: "CANCELED" });
       toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);
-      navigate("/");
+      navigate("/", { replace: true });
     }
   };
 
@@ -94,7 +95,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
         </div>
       </header>
       {/* Checkout content */}
-      <main className="py-2">
+      <main className="pt-2 pb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main checkout form */}
           <div className="flex-1 border border-gray-200 rounded-lg p-6">
@@ -126,7 +127,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
                     </FormItem>
                   )}
                 />
-                <PaymentElement />
+                <PaymentElement className="font-inter" />
                 <Button type="submit" disabled={!stripe || loading} className="px-8">
                   {loading ? "Processing..." : "Pay"}
                 </Button>

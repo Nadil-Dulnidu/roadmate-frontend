@@ -45,11 +45,9 @@ function VehicleProfilePage() {
   };
 
   return (
-    <div className="bg-background min-h-screen w-full">
       <div className="container mx-auto px-8 py-8">
         {renderVehicleProfile()}
       </div>
-    </div>
   );
 }
 
