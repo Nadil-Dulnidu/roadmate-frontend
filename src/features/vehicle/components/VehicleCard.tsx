@@ -6,9 +6,11 @@ import { useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { SignupDialog } from "../../../components/SignUpDialog";
 import { Link } from "react-router";
+import BookingDialog from "@/features/booking/components/BookingDialog";
 
 const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
   const { isSignedIn } = useAuth();
 
   const handleSchedule = () => {
@@ -16,7 +18,7 @@ const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
       setIsSignupDialogOpen(true);
       return;
     }
-    console.log("Scheduling vehicle:", vehicle.vehicle_id);
+    setIsBookingDialogOpen(true);
   };
 
   return (
@@ -46,6 +48,7 @@ const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
         </CardContent>
       </Card>
       <SignupDialog isOpen={isSignupDialogOpen} onClose={() => setIsSignupDialogOpen(false)} />
+      <BookingDialog isOpen={isBookingDialogOpen} onClose={() => setIsBookingDialogOpen(false)} vehicle={vehicle} />
     </>
   );
 };
