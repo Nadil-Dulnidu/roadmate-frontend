@@ -17,7 +17,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query<EntityState<User, number>, string | null>({
       query: (token) => ({
-        url: "/users",
+        url: "/user",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
     }),
     getUserById: builder.query<EntityState<User, number>, { id: number; token: string | null }>({
       query: ({ id, token }) => ({
-        url: `/users/${id}`,
+        url: `/user/${id}`,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -49,7 +49,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
     }),
     getUserByClerkId: builder.query<EntityState<User, number>, { clerkId: string; token: string | null }>({
       query: ({ clerkId, token }) => ({
-        url: `/users/clerk/${clerkId}`,
+        url: `/user/clerk/${clerkId}`,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -63,9 +63,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         { type: "User", id: clerkId },
       ],
     }),
-    updateUserRole: builder.mutation<User, { userId: number; role: UserRole; token: string | null }>({
+    updateUserRole: builder.mutation<User, { userId: string | undefined; role: UserRole; token: string | null }>({
       query: ({ userId, role, token }) => ({
-        url: `/users/role/${userId}?role=${role}`,
+        url: `/user/role/${userId}?role=${role}`,
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
