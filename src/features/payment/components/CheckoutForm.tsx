@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { FormData } from "../paymentTypes";
 import { OrderSummary } from "@/features/payment/components/OrderSummary";
+import { useCreatePaymentMutation } from "../paymentSlice";
+import type { Payment } from "../paymentTypes";
 
 const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
   const stripe: Stripe | null = useStripe();
@@ -21,6 +23,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { getToken } = useAuth();
   const [updateBooking] = useUpdateBookingMutation();
+  const [createPayment] = useCreatePaymentMutation();
   const navigate = useNavigate();
 
   const formSchema = z.object({
@@ -36,11 +39,29 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
     },
   });
 
-  const handlePayment = async ({ status }: { status: Status }) => {
+  const handleBooking = async ({ status }: { status: Status }) => {
     const token = await getToken({ template: "RoadMate" });
     const { error } = await updateBooking({ token, id: stateData?.booking_id, status: status });
     if (error) {
       toast.error("Failed to update booking.");
+    }
+  };
+
+  const handlePayment = async ({ paymentId, status, date }: { paymentId: string | undefined; status: string | undefined; date: number | undefined }) => {
+    if (!date || !paymentId || !status || !stateData.booking_id || !stateData.renter_id) throw new Error("Invalid payment details");
+    const instantDate = new Date(date * 1000).toString();
+    const paymentObj: Payment = {
+      stripe_id: paymentId,
+      booking_id: stateData.booking_id,
+      user_id: stateData.renter_id,
+      amount: stateData.total_price,
+      status: status,
+      date: instantDate,
+    };
+    const token = await getToken({ template: "RoadMate" });
+    const { error } = await createPayment({ token, payment: paymentObj });
+    if (error) {
+      toast.error("Failed to create payment.");
     }
   };
 
@@ -53,10 +74,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
         return;
       }
 
-      const result: {
-        error?: { message?: string };
-        paymentIntent?: { status?: string };
-      } = await stripe.confirmPayment({
+      const result = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/completion`,
@@ -71,15 +89,26 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
       });
 
       if ("error" in result && result.error) {
-        console.error(result.error.message);
+        const paymentIntent = result.paymentIntent as unknown as { id?: string; status?: string; created?: number };
+        handlePayment({
+          paymentId: paymentIntent.id,
+          status: paymentIntent.status,
+          date: paymentIntent.created,
+        });
         toast.error(`Payment failed: ${result.error.message}`);
-      } else if ("paymentIntent" in result && result.paymentIntent?.status === "succeeded") {
+      } else if ("paymentIntent" in result && result.paymentIntent && (result.paymentIntent as { status?: string }).status === "succeeded") {
         toast.success("Payment succeeded!");
-        handlePayment({ status: "CONFIRMED" });
+        handleBooking({ status: "CONFIRMED" });
+        const paymentIntent = result.paymentIntent as unknown as { id?: string; status?: string; created?: number };
+        handlePayment({
+          paymentId: paymentIntent.id,
+          status: paymentIntent.status,
+          date: paymentIntent.created,
+        });
       }
     } catch (err) {
       console.error("Payment error:", err);
-      handlePayment({ status: "CANCELED" });
+      handleBooking({ status: "CANCELED" });
       toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);

@@ -1,23 +1,42 @@
 import { apiSlice } from "../api/apiSlice";
+import {
+  createSelector,
+  createEntityAdapter,
+  type EntityState
+} from "@reduxjs/toolkit";
 import type { Booking, Status } from "./bookingTypes";
+import type { RootState } from "@/app/store";
+
+const bookingAdapter = createEntityAdapter<Booking, number>({
+  selectId: (booking) => {
+    if (booking.booking_id === undefined || booking.booking_id === null) {
+      throw new Error("booking.booking_id is required and must be a number");
+    }
+    return booking.booking_id;
+  },
+});
+
+const initialState = bookingAdapter.getInitialState();
 
 export const bookingApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAllBooking: builder.query<Booking[], { token: string | null }>({
-      query: ({ token }) => ({
+    getAllBooking: builder.query<EntityState<Booking, number>, string | null>({
+      query: (token) => ({
         url: "/booking",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }),
+      transformResponse: (response: Booking[]) => {
+        return bookingAdapter.setAll(initialState, response);
+      },
       providesTags: (result) => [
         { type: "Booking", id: "LIST" },
-        ...(result?.map((booking: Booking) => 
-          ({ type: "Booking" as const, id: booking.booking_id })) || [])
+        ...(result?.ids?.map((booking_id: number) => ({ type: "Booking" as const, id: booking_id })) || [])
       ],
     }),
     createBooking: builder.mutation<Booking, { token: string | null; booking: Booking }>({
-      query: ({ token, booking }) => ({ 
+      query: ({ token, booking }) => ({
         url: "/booking",
         method: "POST",
         headers: {
@@ -41,16 +60,19 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         { type: "Booking", id: "LIST" }
       ]
     }),
-    getBookingById: builder.query<Booking, { token: string | null; id: number }>({
+    getBookingById: builder.query<EntityState<Booking, number>, { token: string | null; id: number }>({
       query: ({ token, id }) => ({
         url: `/booking/${id}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }),
-      providesTags: (result) => [
+      transformResponse: (response: Booking) => {
+        return bookingAdapter.setOne(initialState, response);
+      },
+      providesTags: (_result, _error, { id }) => [
         { type: "Booking", id: "LIST" },
-        { type: "Booking", id: result?.booking_id },
+        { type: "Booking", id },
       ],
     }),
     deleteBooking: builder.mutation<void, { token: string | null; id: number }>({
@@ -73,3 +95,22 @@ export const {
   useGetBookingByIdQuery,
   useDeleteBookingMutation,
 } = bookingApiSlice;
+
+export const selectBookingsResult = bookingApiSlice.endpoints.getAllBooking.select;
+
+const bookingSelectors = bookingAdapter.getSelectors();
+
+const selectBookingsData = (token: string | null) =>
+  createSelector(
+    (state: RootState) => selectBookingsResult(token)(state),
+    (bookingsResult) => bookingsResult?.data ?? initialState
+  );
+
+export const selectAllBookings = (token: string | null) =>
+  (state: RootState) => bookingSelectors.selectAll(selectBookingsData(token)(state));
+
+export const selectBookingById = (token: string | null, id: number) =>
+  (state: RootState) => bookingSelectors.selectById(selectBookingsData(token)(state), id);
+
+export const selectBookingIds = (token: string | null) =>
+  (state: RootState) => bookingSelectors.selectIds(selectBookingsData(token)(state));
