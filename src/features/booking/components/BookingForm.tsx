@@ -81,7 +81,7 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
 
   return (
     <div className="bg-card rounded-lg border p-6 sticky top-24">
-      <h2 className="text-xl font-semibold mb-6">Book this vehicle</h2>
+      <h2 className="text-xl font-semibold mb-6">Book {vehicle.brand} {vehicle.model}</h2>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           {/* Pickup Date */}

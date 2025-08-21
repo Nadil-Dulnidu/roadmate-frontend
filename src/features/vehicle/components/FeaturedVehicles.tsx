@@ -5,6 +5,7 @@ import { selectAllVehicles, useGetVehiclesQuery } from "../vehicleSlice";
 import { useAppSelector } from "@/app/hook";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
+import { Link } from "react-router";
 
 export const FeaturedVehicles = () => {
   const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery();
@@ -46,8 +47,8 @@ export const FeaturedVehicles = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-black mb-1">Luxury Vehicles For Rent</h2>
             <p className="text-lg text-muted-foreground">Experience premium comfort and style on every journey.</p>
           </div>
-          <Button className="text-lg font-bold" variant={"link"}>
-            <a href="#">View more</a>
+          <Button className="text-base font-bold" variant={"link"}>
+            <Link to="/vehicle/listing">View more</Link>
           </Button>
         </div>
         {renderedVehicles()}
