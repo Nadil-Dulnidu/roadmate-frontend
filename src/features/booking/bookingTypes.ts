@@ -11,7 +11,7 @@ export interface Booking {
   status: Status;
 }
 
-export type Status = "PENDING" | "CONFIRMED" | "CANCELED" | "COMPLETED";
+export type Status = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "ACTIVE";
 
 
 export interface RentalStateDetails {
@@ -25,3 +25,14 @@ export interface RentalStateDetails {
   sub_total: number;
   service_fee: number;
 }
+
+export type BookingPageResponse = {
+  content: Booking[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+};

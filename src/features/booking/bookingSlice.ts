@@ -4,7 +4,7 @@ import {
   createEntityAdapter,
   type EntityState
 } from "@reduxjs/toolkit";
-import type { Booking, Status } from "./bookingTypes";
+import type { Booking, BookingPageResponse, Status } from "./bookingTypes";
 import type { RootState } from "@/app/store";
 
 const bookingAdapter = createEntityAdapter<Booking, number>({
@@ -14,6 +14,7 @@ const bookingAdapter = createEntityAdapter<Booking, number>({
     }
     return booking.booking_id;
   },
+  sortComparer: (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
 });
 
 const initialState = bookingAdapter.getInitialState();
@@ -75,6 +76,36 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         { type: "Booking", id },
       ],
     }),
+    getAllBookingByRenterId: builder.query<
+      { data: EntityState<Booking, number>; meta: Omit<BookingPageResponse, "content"> },
+      { token: string | null; renterId: string | undefined; page: number; size: number; status?: Status[] | undefined }
+    >({
+      query: ({ token, renterId, page = 0, size = 3, status = [] }) => ({
+        url: `/booking/renter/${renterId}?page=${page}&size=${size}&status=${status.join(",")}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      transformResponse: (response: BookingPageResponse) => {
+        return {
+          data: bookingAdapter.setAll(initialState, response.content),
+          meta: {
+            totalPages: response.totalPages,
+            totalElements: response.totalElements,
+            number: response.number,
+            size: response.size,
+            first: response.first,
+            last: response.last,
+            numberOfElements: response.numberOfElements,
+          },
+        };
+      },
+      providesTags: (result) => [
+        { type: "Booking", id: "LIST" },
+        ...(result?.data?.ids?.map((booking_id: number) => ({ type: "Booking" as const, id: booking_id })) || []),
+      ],
+    }),
+
     deleteBooking: builder.mutation<void, { token: string | null; id: number }>({
       query: ({ token, id }) => ({
         url: `/booking/${id}`,
@@ -94,9 +125,12 @@ export const {
   useUpdateBookingMutation,
   useGetBookingByIdQuery,
   useDeleteBookingMutation,
+  useGetAllBookingByRenterIdQuery,
 } = bookingApiSlice;
 
-export const selectBookingsResult = bookingApiSlice.endpoints.getAllBooking.select;
+
+// Selector to extract all bookings
+const selectBookingsResult = bookingApiSlice.endpoints.getAllBooking.select;
 
 const bookingSelectors = bookingAdapter.getSelectors();
 
@@ -114,3 +148,22 @@ export const selectBookingById = (token: string | null, id: number) =>
 
 export const selectBookingIds = (token: string | null) =>
   (state: RootState) => bookingSelectors.selectIds(selectBookingsData(token)(state));
+
+// Selector to extract bookings for a specific renter
+const selectBookingsByRenterResult = bookingApiSlice.endpoints.getAllBookingByRenterId.select;
+
+const selectBookingsByRenterData = (token: string | null, renterId: string | undefined, page: number = 0, size: number = 3, status?: Status[] | undefined) =>
+  createSelector(
+    (state: RootState) => selectBookingsByRenterResult({ token, renterId, page, size, status })(state),
+    (bookingsResult) => bookingsResult?.data ?? initialState
+  );
+
+export const selectAllBookingsByRenter = (token: string | null, renterId: string | undefined, page: number = 0, size: number = 3, status?: Status[] | undefined) =>
+  (state: RootState) => {
+    const result = selectBookingsByRenterData(token, renterId, page, size, status)(state);
+    const entityState =
+      (result && typeof result === "object" && "data" in result)
+        ? result.data
+        : result ?? initialState;
+    return bookingAdapter.getSelectors().selectAll(entityState);
+  };

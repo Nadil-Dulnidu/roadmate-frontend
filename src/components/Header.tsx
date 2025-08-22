@@ -69,7 +69,6 @@ export function Header() {
       ) : (
         <>
           <SignInButton
-            forceRedirectUrl="/dashboard"
             mode="modal"
             appearance={{
               elements: {
