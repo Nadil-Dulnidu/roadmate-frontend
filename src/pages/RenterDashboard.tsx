@@ -1,16 +1,19 @@
-import RenterActiveBooking from "@/features/booking/components/RenterBooking";
+import RenterActiveBooking from "@/features/booking/components/RenterActiveBookings";
 import { Car, Calendar } from "lucide-react";
 import { Helmet } from "react-helmet";
-import { selectAllBookings, useGetAllBookingQuery } from "@/features/booking/bookingSlice";
+import { useGetAllBookingByRenterIdQuery, selectBookingsByRenter } from "@/features/booking/bookingSlice";
 import { useAppSelector } from "@/app/hook";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
+import RenterRecentBookings from "@/features/booking/components/RenterRecentBookings";
 
 function RenterDashboard() {
   const { getToken } = useAuth();
   const { user } = useUser();
   const [authToken, setAuthToken] = useState<string | null>(null);
-  
+  const userId = user?.id;
+
   useEffect(() => {
     const fetchToken = async () => {
       const token = await getToken();
@@ -19,8 +22,8 @@ function RenterDashboard() {
     fetchToken();
   }, [getToken]);
 
-  useGetAllBookingQuery(authToken, { skip: !authToken });
-  const bookings = useAppSelector(selectAllBookings(authToken));
+  useGetAllBookingByRenterIdQuery({ token: authToken, renterId: userId, status: [] }, { skip: !userId || !authToken });
+  const bookings = useAppSelector(selectBookingsByRenter(authToken, userId, []));
 
   const stats = [
     {
@@ -67,15 +70,17 @@ function RenterDashboard() {
             <div className="lg:col-span-2">
               <div className="bg-card rounded-lg border border-border p-6">
                 <h3 className="text-lg font-semibold mb-4">Active & Upcoming Rentals</h3>
-                <RenterActiveBooking active={["CONFIRMED", "ACTIVE"]} />
+                <RenterActiveBooking />
               </div>
             </div>
             {/* Recent Bookings */}
             <div>
               <div className="bg-card rounded-lg border border-border p-6">
                 <h3 className="text-lg font-semibold mb-4">Recent Bookings</h3>
-                <RenterActiveBooking completed={["COMPLETED", "CANCELLED"]} />
-                <button className="w-full mt-4 text-sm text-primary hover:underline">View All Bookings</button>
+                <RenterRecentBookings />
+                <Link to="/dashboard/renter/allbookings">
+                  <button className="w-full mt-4 text-sm text-primary hover:underline">View All Bookings</button>
+                </Link>
               </div>
             </div>
           </div>

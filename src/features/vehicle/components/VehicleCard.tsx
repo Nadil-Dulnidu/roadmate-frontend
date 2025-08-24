@@ -37,7 +37,7 @@ const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
               {vehicle.brand} {vehicle.model}
             </h3>
             <p className="text-sm">
-              Rs. {vehicle.price_per_day} <span className="text-xs">per day</span>
+              {vehicle.price_per_day.toLocaleString("en-US", { style: "currency", currency: "LKR" })}<span className="text-xs"> per day</span>
             </p>
           </div>
           <div>

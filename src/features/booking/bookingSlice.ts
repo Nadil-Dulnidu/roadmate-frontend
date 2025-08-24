@@ -4,7 +4,7 @@ import {
   createEntityAdapter,
   type EntityState
 } from "@reduxjs/toolkit";
-import type { Booking, BookingPageResponse, Status } from "./bookingTypes";
+import type { Booking, Status } from "./bookingTypes";
 import type { RootState } from "@/app/store";
 
 const bookingAdapter = createEntityAdapter<Booking, number>({
@@ -76,33 +76,19 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         { type: "Booking", id },
       ],
     }),
-    getAllBookingByRenterId: builder.query<
-      { data: EntityState<Booking, number>; meta: Omit<BookingPageResponse, "content"> },
-      { token: string | null; renterId: string | undefined; page: number; size: number; status?: Status[] | undefined }
-    >({
-      query: ({ token, renterId, page = 0, size = 3, status = [] }) => ({
-        url: `/booking/renter/${renterId}?page=${page}&size=${size}&status=${status.join(",")}`,
+    getAllBookingByRenterId: builder.query<EntityState<Booking, number>, { token: string | null; renterId: string | undefined; status?: Status[] | undefined }>({
+      query: ({ token, renterId, status = [] }) => ({
+        url: `/booking/renter/${renterId}?status=${status.join(",")}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }),
-      transformResponse: (response: BookingPageResponse) => {
-        return {
-          data: bookingAdapter.setAll(initialState, response.content),
-          meta: {
-            totalPages: response.totalPages,
-            totalElements: response.totalElements,
-            number: response.number,
-            size: response.size,
-            first: response.first,
-            last: response.last,
-            numberOfElements: response.numberOfElements,
-          },
-        };
+      transformResponse: (response: Booking[]) => {
+        return bookingAdapter.setAll(initialState, response);
       },
       providesTags: (result) => [
         { type: "Booking", id: "LIST" },
-        ...(result?.data?.ids?.map((booking_id: number) => ({ type: "Booking" as const, id: booking_id })) || []),
+        ...(result?.ids?.map((booking_id: number) => ({ type: "Booking" as const, id: booking_id })) || []),
       ],
     }),
 
@@ -152,18 +138,13 @@ export const selectBookingIds = (token: string | null) =>
 // Selector to extract bookings for a specific renter
 const selectBookingsByRenterResult = bookingApiSlice.endpoints.getAllBookingByRenterId.select;
 
-const selectBookingsByRenterData = (token: string | null, renterId: string | undefined, page: number = 0, size: number = 3, status?: Status[] | undefined) =>
+const selectBookingsByRenterData = (token: string | null, renterId: string | undefined, status?: Status[] | undefined) =>
   createSelector(
-    (state: RootState) => selectBookingsByRenterResult({ token, renterId, page, size, status })(state),
+    (state: RootState) => selectBookingsByRenterResult({ token, renterId, status })(state),
     (bookingsResult) => bookingsResult?.data ?? initialState
   );
 
-export const selectAllBookingsByRenter = (token: string | null, renterId: string | undefined, page: number = 0, size: number = 3, status?: Status[] | undefined) =>
-  (state: RootState) => {
-    const result = selectBookingsByRenterData(token, renterId, page, size, status)(state);
-    const entityState =
-      (result && typeof result === "object" && "data" in result)
-        ? result.data
-        : result ?? initialState;
-    return bookingAdapter.getSelectors().selectAll(entityState);
-  };
+export const selectBookingsByRenter = (token: string | null, renterId: string | undefined, status?: Status[] | undefined) => {
+  const selectBookings = selectBookingsByRenterData(token, renterId, status);
+  return (state: RootState) => bookingSelectors.selectAll(selectBookings(state));
+};

@@ -121,20 +121,20 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
             <div className="mt-6 space-y-2 border-t pt-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  Rs.{vehicle.price_per_day} × {days} day{days !== 1 ? "s" : ""}
+                  {vehicle.price_per_day.toLocaleString("en-US", { style: "currency", currency: "LKR" })} × {days} day{days !== 1 ? "s" : ""}
                 </span>
-                <span>Rs.{subtotal}</span>
+                <span>{subtotal.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>
               </div>
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <span className="text-muted-foreground">Service fee</span>
                   <Info className="h-3 w-3 text-muted-foreground ml-1" />
                 </div>
-                <span>Rs.{serviceFee}</span>
+                <span>{serviceFee.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>
               </div>
               <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                 <span>Total</span>
-                <span>Rs.{total}</span>
+                <span>{total.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>
               </div>
             </div>
           )}

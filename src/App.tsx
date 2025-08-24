@@ -7,7 +7,8 @@ import VehicleListPage from "./features/vehicle/pages/VehicleListPage";
 import CheckoutPage from "./features/payment/pages/CheckoutPage";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import NotFoundPage from "./pages/NotFoundPage";
-import  RenterDashboard from "./pages/RenterDashboard";
+import RenterDashboard from "./pages/RenterDashboard";
+import { ViewAllBookings } from "./features/booking/pages/ViewAllBookings";
 
 function App() {
   return (
@@ -31,19 +32,24 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <>
-              <SignedIn>
-                <RenterDashboard />
-              </SignedIn>
-              <SignedOut>
-                <LoginPage />
-              </SignedOut>
-            </>
-          }
-        />
+        <Route path="dashboard">
+          <Route path="renter">
+            <Route
+              index
+              element={
+                <>
+                  <SignedIn>
+                    <RenterDashboard />
+                  </SignedIn>
+                  <SignedOut>
+                    <LoginPage />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route path="allbookings" element={<ViewAllBookings />} />
+          </Route>
+        </Route>
         <Route path="/*" element={<NotFoundPage />} />
       </Route>
       <Route path="auth">

@@ -15,7 +15,7 @@ export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">
-              Rs.{vehicle.price_per_day}
+              {vehicle.price_per_day.toLocaleString("en-US", { style: "currency", currency: "LKR" })}
               <span className="text-sm font-normal text-muted-foreground">/day</span>
             </div>
           </div>
