@@ -48,7 +48,8 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
   };
 
   const handlePayment = async ({ paymentId, status, date }: { paymentId: string | undefined; status: string | undefined; date: number | undefined }) => {
-    if (!date || !paymentId || !status || !stateData.booking_id || !stateData.renter_id) throw new Error("Invalid payment details");
+    if (!date || !paymentId || !status || !stateData.booking_id || !stateData.renter_id) 
+      throw new Error("Invalid payment details");
     const instantDate = new Date(date * 1000).toString();
     const paymentObj: Payment = {
       stripe_id: paymentId,
@@ -108,7 +109,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
       }
     } catch (err) {
       console.error("Payment error:", err);
-      handleBooking({ status: "CANCELED" });
+      handleBooking({ status: "CANCELLED" });
       toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);
