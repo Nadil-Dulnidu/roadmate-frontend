@@ -1,11 +1,11 @@
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { TabsList } from "@radix-ui/react-tabs";
 import VehicleCard from "../components/VehicleCard";
-import { selectAllVehicles, useGetVehiclesQuery } from "../vehicleSlice";
-import { useAppSelector } from "@/app/hook";
+import { useGetVehiclesQuery, selectAllVehicles } from "../vehicleSlice";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { JSX } from "react";
 import { toast } from "sonner";
+import { useAppSelector } from "@/app/hook";
 
 const categories = [
   {id: "CAR", label: "Cars"}, 
@@ -16,8 +16,8 @@ const categories = [
 ];
 
 const VehicleListPage = () => {
-  const vehicles = useAppSelector(selectAllVehicles);
-  const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery();
+  const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery({ page: 0, size: 8 });
+  const vehicles = useAppSelector(state => selectAllVehicles(state, { page: 0, size: 8 }));
 
   const renderVehicles = () => {
     let content: JSX.Element | null = null;
@@ -31,7 +31,7 @@ const VehicleListPage = () => {
               <TabsContent key={category.id} value={category.id} className="mt-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {vehicles
-                    .filter((v) => v.vehicle_type === category.id)
+                    .filter((v ) => v.vehicle_type === category.id)
                     .map((vehicle) => (
                       <VehicleCard key={vehicle.vehicle_id} vehicle={vehicle} />
                     ))}

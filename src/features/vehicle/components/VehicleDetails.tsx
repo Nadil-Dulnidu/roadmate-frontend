@@ -1,5 +1,5 @@
 import type { FullVehicle } from "../vehicleTypes";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, User, Phone } from "lucide-react";
 
 export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
   return (
@@ -20,7 +20,7 @@ export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
             </div>
           </div>
         </div>
-        <div className="flex items-center mt-2 space-x-4">
+        <div className="flex md:flex-col lg:flex-row items-center mt-2 space-x-4">
           <div className="flex items-center">
             <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
             <span className="font-medium">{vehicle.rating}</span>
@@ -29,6 +29,14 @@ export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
           <div className="flex items-center text-muted-foreground">
             <MapPin className="h-4 w-4 mr-1" />
             {vehicle.location}
+          </div>
+          <div className="flex items-center text-muted-foreground">
+            <User className="h-4 w-4 mr-1"/>
+            {"Nadil Dulnidu"}
+          </div>
+          <div className="flex items-center text-muted-foreground">
+            <Phone className="h-4 w-4 mr-1"/>
+            {vehicle.contact_number}
           </div>
         </div>
       </div>
@@ -59,16 +67,6 @@ export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
           </div>
         </div>
       </div>
-      {/* Features */}
-      {/* <div>
-        <h2 className="text-xl font-semibold mb-4">Features</h2>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex items-center">
-            <div className="h-2 w-2 rounded-full bg-primary mr-2"></div>
-            <span>{}</span>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 }

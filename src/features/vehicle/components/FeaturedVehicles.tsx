@@ -1,15 +1,15 @@
-import type { JSX } from "react";
+import { type JSX } from "react";
 import { Button } from "../../../components/ui/button";
 import VehicleCard from "./VehicleCard";
 import { selectAllVehicles, useGetVehiclesQuery } from "../vehicleSlice";
-import { useAppSelector } from "@/app/hook";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
 import { Link } from "react-router";
+import { useAppSelector } from "@/app/hook";
 
 export const FeaturedVehicles = () => {
-  const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery();
-  const vehicles = useAppSelector(selectAllVehicles);
+  const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery({ page: 0, size: 4 });
+  const vehicles = useAppSelector(state => selectAllVehicles(state, { page: 0, size: 4 }));
 
   const renderedVehicles = () => {
     let content: JSX.Element | null = null;
@@ -18,7 +18,7 @@ export const FeaturedVehicles = () => {
     } else if (isSuccess) {
       content = (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {vehicles.slice(0, 8).map((car) => (
+          {vehicles.map((car) => (
             <VehicleCard key={car.vehicle_id} vehicle={car} />
           ))}
         </div>

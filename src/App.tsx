@@ -9,6 +9,7 @@ import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import NotFoundPage from "./pages/NotFoundPage";
 import RenterDashboard from "./pages/RenterDashboard";
 import { ViewAllBookings } from "./features/booking/pages/ViewAllBookings";
+import HostDashboard from "./pages/HostDashboard";
 
 function App() {
   return (
@@ -47,7 +48,34 @@ function App() {
                 </>
               }
             />
-            <Route path="allbookings" element={<ViewAllBookings />} />
+            <Route
+              path="allbookings"
+              element={
+                <>
+                  <SignedIn>
+                    <ViewAllBookings />
+                  </SignedIn>
+                  <SignedOut>
+                    <LoginPage />
+                  </SignedOut>
+                </>
+              }
+            />
+          </Route>
+          <Route path="host">
+            <Route
+              index
+              element={
+                <>
+                  <SignedIn>
+                    <HostDashboard />
+                  </SignedIn>
+                  <SignedOut>
+                    <LoginPage />
+                  </SignedOut>
+                </>
+              }
+            />
           </Route>
         </Route>
         <Route path="/*" element={<NotFoundPage />} />

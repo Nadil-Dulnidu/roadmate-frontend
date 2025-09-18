@@ -5,14 +5,29 @@ import { useGetAllBookingByRenterIdQuery, selectBookingsByRenter } from "@/featu
 import { useAppSelector } from "@/app/hook";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import RenterRecentBookings from "@/features/booking/components/RenterRecentBookings";
 
-function RenterDashboard() {
-  const { getToken } = useAuth();
+const RenterDashboard = () => {
+  const { getToken, isLoaded } = useAuth();
   const { user } = useUser();
   const [authToken, setAuthToken] = useState<string | null>(null);
   const userId = user?.id;
+  const router = useNavigate();
+
+  useEffect(() => {
+    if (isLoaded && user?.publicMetadata.role === "RENTER") {
+      return;
+    } else if (isLoaded && user?.publicMetadata.role === "OWNER") {
+      router("/dashboard/host", { replace: true });
+    } else if (isLoaded && user?.publicMetadata.role === "STAFF") {
+      router("/dashboard/staff", { replace: true });
+    } else if (isLoaded && user?.publicMetadata.role === "ADMIN") {
+      router("/dashboard/admin", { replace: true });
+    } else {
+      router("/auth/signup");
+    }
+  }, [isLoaded, router, user]);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -68,18 +83,18 @@ function RenterDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Active Rentals */}
             <div className="lg:col-span-2">
-              <div className="bg-card rounded-lg border border-border p-6">
+              <div className="bg-card rounded-lg border border-border p-6 min-h-72">
                 <h3 className="text-lg font-semibold mb-4">Active & Upcoming Rentals</h3>
                 <RenterActiveBooking />
               </div>
             </div>
             {/* Recent Bookings */}
             <div>
-              <div className="bg-card rounded-lg border border-border p-6">
+              <div className="bg-card rounded-lg border border-border p-6 min-h-72">
                 <h3 className="text-lg font-semibold mb-4">Recent Bookings</h3>
                 <RenterRecentBookings />
                 <Link to="/dashboard/renter/allbookings">
-                  <button className="w-full mt-4 text-sm text-primary hover:underline">View All Bookings</button>
+                  <button className="w-full mt-10 text-sm text-primary hover:underline">View All Bookings</button>
                 </Link>
               </div>
             </div>
@@ -88,6 +103,6 @@ function RenterDashboard() {
       </div>
     </>
   );
-}
+};
 
 export default RenterDashboard;

@@ -67,7 +67,11 @@ const RenterRecentBookings = () => {
           console.error(errorMessage);
         }
       }
-      content = <p className="text-center text-gray-500 text-sm">Empty Active bookings</p>;
+      content = (
+        <div className="p-12 text-center">
+          <p className="text-muted-foreground">No Recent Bookings</p>
+        </div>
+      );
     }
     return content;
   };

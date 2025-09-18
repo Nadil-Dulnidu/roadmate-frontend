@@ -8,7 +8,7 @@ function NotFoundPage() {
       <div className="max-w-2xl mx-auto text-center">
         {/* Large 404 with car icon */}
         <div className="relative mb-8">
-          <h1 className="text-9xl md:text-[12rem] font-bold text-gray-200 select-none">404</h1>
+          <h1 className="text-9xl md:text-[12rem] font-bold text-gray-100 select-none">404</h1>
           <div className="absolute inset-0 flex items-center justify-center">
             <Car className="w-20 h-20 md:w-24 md:h-24 text-gray-800" />
           </div>
@@ -34,18 +34,6 @@ function NotFoundPage() {
               Browse Vehicles
             </Button>
           </Link>
-        </div>
-        {/* Additional help text */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-500 mb-4">Need immediate assistance? Our team is here to help.</p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm">
-            <a href="tel:+1-800-RENTALS" className="text-gray-700 hover:text-gray-900 font-medium">
-              📞 +94 123 456 3214
-            </a>
-            <a href="mailto:support@vehiclerental.com" className="text-gray-700 hover:text-gray-900 font-medium">
-              ✉️ support@roadmate.com
-            </a>
-          </div>
         </div>
         {/* Decorative elements */}
         <div className="absolute top-1/4 left-4 opacity-5">

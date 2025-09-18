@@ -10,7 +10,7 @@ import type { RootState } from "@/app/store";
 const bookingAdapter = createEntityAdapter<Booking, number>({
   selectId: (booking) => {
     if (booking.booking_id === undefined || booking.booking_id === null) {
-      throw new Error("booking.booking_id is required and must be a number");
+      throw new Error("booking_id is required and must be a number");
     }
     return booking.booking_id;
   },
