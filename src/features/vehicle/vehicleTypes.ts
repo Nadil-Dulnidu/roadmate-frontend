@@ -25,4 +25,14 @@ export interface FullVehicle {
   }[];
 };
 
+export type VehicleResponse = {
+  content: FullVehicle[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+};
+
 

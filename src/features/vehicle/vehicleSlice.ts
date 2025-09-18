@@ -1,11 +1,11 @@
-import type { RootState } from "@/app/store";
 import { apiSlice } from "../api/apiSlice";
 import {
-  createSelector,
   createEntityAdapter,
+  createSelector,
   type EntityState
 } from "@reduxjs/toolkit";
-import type { FullVehicle } from "./vehicleTypes";
+import type { FullVehicle, VehicleResponse } from "./vehicleTypes";
+import type { RootState } from "@/app/store";
 
 const vehicleAdapter = createEntityAdapter<FullVehicle, number>({
   selectId: (vehicle) => vehicle.vehicle_id,
@@ -15,14 +15,28 @@ const initialState = vehicleAdapter.getInitialState();
 
 export const vehicleApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getVehicles: builder.query<EntityState<FullVehicle, number>, void>({
-      query: () => "/listing/vehicle",
-      transformResponse: (response: FullVehicle[]) => {
-        return vehicleAdapter.setAll(initialState, response);
+    getVehicles: builder.query<{ data: EntityState<FullVehicle, number>; meta: Omit<VehicleResponse, "content"> }, { page: number; size: number; vehicleName?: string | undefined }>({
+      query: ({ page, size, vehicleName }) => {
+        let url = `/listing/vehicle?page=${page}&size=${size}`;
+        if (vehicleName) url += `&vehicleName=${vehicleName}`;
+        return { url };
+      },
+      transformResponse: (response: VehicleResponse) => {
+        return {
+          data: vehicleAdapter.setAll(initialState, response.content),
+          meta: {
+            totalPages: response.totalPages,
+            totalElements: response.totalElements,
+            number: response.number,
+            size: response.size,
+            first: response.first,
+            last: response.last,
+          },
+        };
       },
       providesTags: (result) => [
         { type: "Vehicle", id: "LIST" },
-        ...(result?.ids?.map((vehicle_id: number) => ({ type: "Vehicle" as const, id: vehicle_id })) || [])
+        ...(result?.data?.ids?.map((vehicle_id) => ({ type: "Vehicle" as const, id: vehicle_id })) || [])
       ],
     }),
     getVehicleById: builder.query<FullVehicle, number>({
@@ -61,7 +75,7 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
       query: ({ updatedVehicle, token }) => ({
         url: `/listing/vehicle`,
         method: "PUT",
-         headers: {
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
@@ -101,24 +115,46 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
   })
 });
 
-export const { 
-  useGetVehiclesQuery, 
-  useGetVehicleByIdQuery, 
-  useGetVehicleByOwnerQuery, 
-  useAddVehicleMutation, 
-  useUpdateVehicleMutation, 
-  useUpdateVehicleStatusMutation, 
-  useDeleteVehicleMutation 
+export const {
+  useGetVehiclesQuery,
+  useGetVehicleByIdQuery,
+  useGetVehicleByOwnerQuery,
+  useAddVehicleMutation,
+  useUpdateVehicleMutation,
+  useUpdateVehicleStatusMutation,
+  useDeleteVehicleMutation
 } = vehicleApiSlice;
 
-const selectVehicleResult = vehicleApiSlice.endpoints.getVehicles.select();
-const selectVehiclesData = createSelector(
-  selectVehicleResult,
-  (vehicleResult) => vehicleResult.data
+type VehicleQueryArgs = { page: number; size: number; vehicleName?: string };
+
+const selectVehiclesResult = (queryArgs: VehicleQueryArgs) =>
+  vehicleApiSlice.endpoints.getVehicles.select(queryArgs);
+
+export const selectVehiclesData = createSelector(
+  (state: RootState, queryArgs: VehicleQueryArgs) => selectVehiclesResult(queryArgs)(state),
+  (vehiclesResult) => vehiclesResult?.data?.data ?? initialState
 );
 
-export const {
-  selectAll: selectAllVehicles,
-  selectById: selectVehicleById,
-  selectIds: selectVehicleIds,
-} = vehicleAdapter.getSelectors<RootState>((state) => selectVehiclesData(state) ?? initialState);
+export const selectVehiclesMeta = createSelector(
+
+  (state: RootState, queryArgs: VehicleQueryArgs) => selectVehiclesResult(queryArgs)(state),
+  (vehiclesResult) => vehiclesResult?.data?.meta
+);
+
+const { selectAll, selectById, selectIds } = vehicleAdapter.getSelectors();
+
+export const selectAllVehicles = createSelector(
+  [selectVehiclesData],
+  (vehiclesData) => selectAll(vehiclesData)
+);
+
+export const selectVehicleIds = createSelector(
+  [selectVehiclesData],
+  (vehiclesData) => selectIds(vehiclesData)
+);
+
+export const selectVehicleById = createSelector(
+  [selectVehiclesData, (_state, _queryArgs, vehicleId) => vehicleId],
+  (vehiclesData, vehicleId) => selectById(vehiclesData, vehicleId)
+);
+
