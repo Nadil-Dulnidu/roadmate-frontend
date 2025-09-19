@@ -74,7 +74,6 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
         setLoading(false);
         return;
       }
-
       const result = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -88,7 +87,6 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
         },
         redirect: "if_required",
       });
-
       if ("error" in result && result.error) {
         const paymentIntent = result.paymentIntent as unknown as { id?: string; status?: string; created?: number };
         handlePayment({

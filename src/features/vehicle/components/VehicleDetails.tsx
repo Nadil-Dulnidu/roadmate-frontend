@@ -1,5 +1,7 @@
+import AddReviewSection from "@/features/review/components/AddReviewSection";
 import type { FullVehicle } from "../vehicleTypes";
 import { Star, MapPin, User, Phone } from "lucide-react";
+import ReviewList from "@/features/review/components/ReviewList";
 
 export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
   return (
@@ -67,6 +69,15 @@ export function VehicleDetails({ vehicle }: { vehicle: FullVehicle }) {
           </div>
         </div>
       </div>
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-black mb-2">
+            Customer Reviews
+          </h2>
+        </div>
+        <div className="grid lg:grid-cols-2 gap-8">
+          <AddReviewSection vehicleId={vehicle.vehicle_id}/>
+          <ReviewList vehicleId={vehicle.vehicle_id} />
+        </div>
     </div>
   );
 }

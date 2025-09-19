@@ -18,12 +18,12 @@ function VehicleProfilePage() {
       content = <LoadingSpinner size={35} stroke={3.5} speed={1} color="black" />;
     } else if (isSuccess) {
       content = (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <div className="xl:col-span-2">
             <VehicleGallery images={vehicle.images} />
             <VehicleDetails vehicle={vehicle} />
           </div>
-          <div className="lg:col-span-1">
+          <div className="xl:col-span-1">
             <BookingForm vehicle={vehicle} />
           </div>
         </div>
