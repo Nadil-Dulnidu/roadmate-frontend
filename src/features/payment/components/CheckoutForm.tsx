@@ -4,7 +4,7 @@ import type { Stripe, StripeElements } from "@stripe/stripe-js";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useUpdateBookingMutation } from "@/features/booking/bookingSlice";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,8 @@ import type { FormData } from "../paymentTypes";
 import { OrderSummary } from "@/features/payment/components/OrderSummary";
 import { useCreatePaymentMutation } from "../paymentSlice";
 import type { Payment } from "../paymentTypes";
+import { useSendNotificationMutation } from "@/features/notification/notificationSlice";
+import type { NotificationPayload, NotificationTypes } from "@/features/notification/notificationType";
 
 const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
   const stripe: Stripe | null = useStripe();
@@ -25,6 +27,8 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
   const [updateBooking] = useUpdateBookingMutation();
   const [createPayment] = useCreatePaymentMutation();
   const navigate = useNavigate();
+  const [sendNotification] = useSendNotificationMutation();
+  const { user } = useUser();
 
   const formSchema = z.object({
     customerName: z.string().nonempty("Customer name must not be empty"),
@@ -48,8 +52,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
   };
 
   const handlePayment = async ({ paymentId, status, date }: { paymentId: string | undefined; status: string | undefined; date: number | undefined }) => {
-    if (!date || !paymentId || !status || !stateData.booking_id || !stateData.renter_id) 
-      throw new Error("Invalid payment details");
+    if (!date || !paymentId || !status || !stateData.booking_id || !stateData.renter_id) throw new Error("Invalid payment details");
     const instantDate = new Date(date * 1000).toString();
     const paymentObj: Payment = {
       stripe_id: paymentId,
@@ -63,6 +66,22 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
     const { error } = await createPayment({ token, payment: paymentObj });
     if (error) {
       toast.error("Failed to create payment.");
+    }
+  };
+
+  const createNotification = async ({ type, title, message }: { type: NotificationTypes[keyof NotificationTypes]; title: string; message: string }) => {
+    const token = await getToken({ template: "RoadMate" });
+    const userId = user?.id;
+    const notification: NotificationPayload = {
+      user_id: userId,
+      title: title,
+      notification_type: type,
+      message: message,
+    };
+    const { error } = await sendNotification({ token: token, notification: notification });
+    if (error) {
+      toast.error("Failed to send notification.");
+      console.error("Notification error:", error);
     }
   };
 
@@ -89,7 +108,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
       });
       if ("error" in result && result.error) {
         const paymentIntent = result.paymentIntent as unknown as { id?: string; status?: string; created?: number };
-        handlePayment({
+        await handlePayment({
           paymentId: paymentIntent.id,
           status: paymentIntent.status,
           date: paymentIntent.created,
@@ -97,18 +116,28 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
         toast.error(`Payment failed: ${result.error.message}`);
       } else if ("paymentIntent" in result && result.paymentIntent && (result.paymentIntent as { status?: string }).status === "succeeded") {
         toast.success("Payment succeeded!");
-        handleBooking({ status: "CONFIRMED" });
+        await handleBooking({ status: "CONFIRMED" });
         const paymentIntent = result.paymentIntent as unknown as { id?: string; status?: string; created?: number };
-        handlePayment({
+        await handlePayment({
           paymentId: paymentIntent.id,
           status: paymentIntent.status,
           date: paymentIntent.created,
         });
+        await createNotification({
+          type: "BOOKING",
+          title: "Booking Confirmed",
+          message: `Your booking for ${stateData.vehicle.brand} ${stateData.vehicle.model} has been confirmed.`,
+        });
       }
     } catch (err) {
       console.error("Payment error:", err);
-      handleBooking({ status: "CANCELLED" });
+      await handleBooking({ status: "CANCELLED" });
       toast.error("Payment failed. Please try again.");
+      await createNotification({
+        type: "BOOKING",
+        title: "Booking Cancelled",
+        message: `Your booking for ${stateData.vehicle.brand} ${stateData.vehicle.model} has been cancelled.`,
+      });
     } finally {
       setLoading(false);
       navigate("/", { replace: true });

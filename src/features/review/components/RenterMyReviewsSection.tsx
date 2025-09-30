@@ -154,7 +154,7 @@ const RenterMyReviewsSection = () => {
 
   useEffect(() => {
     const fetchToken = async () => {
-      const token = await getToken();
+      const token = await getToken({ template: "RoadMate" });
       setAuthToken(token);
     };
     fetchToken();

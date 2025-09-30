@@ -6,7 +6,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
-import { NotificationPopover } from "./NotificationPopover";
+import { NotificationPopover } from "../features/notification/components/NotificationPopover";
 import BecomeHostDialog from "./BeacomeHostDialog";
 import { SignupDialog } from "./SignUpDialog";
 
