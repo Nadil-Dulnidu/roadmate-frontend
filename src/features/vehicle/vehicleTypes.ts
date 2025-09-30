@@ -35,4 +35,20 @@ export type VehicleResponse = {
   last: boolean;
 };
 
-
+export interface NewVehicle {
+  vehicle_type: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  engine: string;
+  transmission: string;
+  number_of_seats: number;
+  license_plate: string;
+  description: string;
+  price_per_day: number;
+  location: string;
+  city: string;
+  contact_number: string;
+  owner_id: string;
+}

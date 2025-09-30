@@ -59,12 +59,11 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
         ...(result?.ids?.map((vehicle_id: number) => ({ type: "Vehicle" as const, id: vehicle_id })) || [])
       ],
     }),
-    addVehicle: builder.mutation<FullVehicle, { newVehicle: FullVehicle; token: string | null }>({
+    addVehicle: builder.mutation<FullVehicle, { newVehicle: FormData; token: string | null }>({
       query: ({ newVehicle, token }) => ({
         url: `/listing/vehicle`,
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: newVehicle,
