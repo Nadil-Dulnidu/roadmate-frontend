@@ -5,29 +5,24 @@ import Autoplay from "embla-carousel-autoplay";
 const TestimonialSection = () => {
   const testimonials = [
     {
-      quote: "The Chill Syndicate redefines what it means to belong. It's where visionaries gather and real connections thrive.",
-      author: "Malshan Peris",
-      title: "Chairman",
+      quote: "Booking was quick and easy, the car was spotless, and the entire rental process felt smooth, reliable, and totally stress-free every step.",
+      author: "Sarah Lopez",
     },
     {
-      quote: "In a world full of noise, The Chill Syndicate offers clarity, class, and conversation that actually real matters.",
-      author: "Geeth Dananjaya",
-      title: "Managing Director",
+      quote: "Great service with friendly staff, fair pricing, and a car that was ready on time. The experience was seamless and I will definitely rent again.",
+      author: "Daniel Roberts",
     },
     {
-      quote: "Every visit feels intentional. The Chill Syndicate blends elegance with authenticity in a way never seen before.",
-      author: "Dasula Siriwardana",
-      title: "General Secretary",
+      quote: "The app was simple to use and made comparing vehicles easy. My rental was ready when I arrived, clean, and the service team was very supportive.",
+      author: "Priya Kapoor",
     },
     {
-      quote: "There's something magnetic about the energy here. The Chill Syndicate is more than a space - it's an experience.",
-      author: "Banumath Kovinda",
-      title: "Vice President",
+      quote: "I loved the flexibility of the rental terms, and customer support was quick to respond. The vehicle was well maintained and smooth to drive.",
+      author: "Ahmed Mahmood",
     },
     {
-      quote: "I didn't just join a club — I found alignment. The Chill Syndicate is where style, ambition, and soul converge.",
-      author: "Nadil Dulnidu",
-      title: "Member",
+      quote: "Everything went smoothly from booking to return. The vehicle was reliable, comfortable, and the entire rental felt convenient and stress-free.",
+      author: "Emily Turner",
     },
   ];
   return (
@@ -64,7 +59,6 @@ const TestimonialSection = () => {
                       <p className="text-base leading-relaxed mb-6">{testimonial.quote}</p>
                       <div>
                         <p className="font-semibold text-black">{testimonial.author}</p>
-                        <p className="text-gray-500 text-sm">{testimonial.title}</p>
                       </div>
                     </CardContent>
                   </Card>

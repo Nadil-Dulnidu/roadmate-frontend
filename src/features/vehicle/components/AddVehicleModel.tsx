@@ -12,6 +12,8 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import { toast } from "sonner";
 import { useAddVehicleMutation } from "../vehicleSlice";
 import type { NewVehicle } from "../vehicleTypes";
+import { Plus } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface AddMentorModalProp {
   isOpen: boolean;
@@ -53,7 +55,7 @@ interface FormData {
   location: string;
   city: string;
   contact_number: string;
-  images: FileList | null;
+  images: File[];
 }
 
 const formSchema = z.object({
@@ -71,11 +73,11 @@ const formSchema = z.object({
   location: z.string().nonempty({ message: "Location is required" }),
   city: z.string().nonempty({ message: "City is required" }),
   contact_number: z.string().nonempty({ message: "Contact number is required" }),
-  images: z.any().refine((files) => files?.length > 0, { message: "Upload at least one image" }),
+  images: z.array(z.instanceof(File)).min(1, { message: "Upload at least one image" }),
 });
 
 const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
-  const [addVehicle] = useAddVehicleMutation();
+  const [addVehicle, { isLoading }] = useAddVehicleMutation();
   const { getToken } = useAuth();
   const [token, setToken] = useState<string | null>(null);
   const { user } = useUser();
@@ -86,14 +88,14 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
       vehicle_type: "",
       brand: "",
       model: "",
-      year: new Date().getFullYear(),
+      year: "",
       color: "",
       engine: "",
       transmission: "",
-      number_of_seats: 4,
+      number_of_seats: "",
       license_plate: "",
       description: "",
-      price_per_day: 0,
+      price_per_day: "",
       location: "",
       city: "",
       contact_number: "",
@@ -109,7 +111,6 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
 
   useEffect(() => {
     const fetchToken = async () => {
-      if (!user) return;
       const userToken = await getToken({ template: "RoadMate" });
       setToken(userToken);
     };
@@ -135,9 +136,11 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
 
       const formData = new FormData();
 
-      for (let i = 0; i < data.images.length; i++) {
-        formData.append("files", data.images[i]);
+      for (const file of data.images) {
+        formData.append("files", file);
       }
+
+      console.log(formData);
 
       const newVehicle: NewVehicle = {
         vehicle_type: data.vehicle_type,
@@ -177,273 +180,293 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
   return (
     <div>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="overflow-y-scroll scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent sm:max-w-[725px] h-5/6">
+        <DialogContent className="sm:max-w-[725px] h-5/6">
           <DialogHeader>
-            <DialogTitle>Add Vehicle</DialogTitle>
+            <DialogTitle className="font-semibold text-xl">Rent Your Vehicle</DialogTitle>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 flex-row">
-              <FormField
-                control={form.control}
-                name="vehicle_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select a vehicle type</FormLabel>
-                    <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a vehicle type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel></SelectLabel>
-                          {VehicleTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="brand"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Brand</FormLabel>
-                    <FormControl>
-                      <Input placeholder="BMW" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="model"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Model</FormLabel>
-                    <FormControl>
-                      <Input placeholder="M4 CS" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="year"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Year</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="2025" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Color</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Red" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="engine"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select an engine type</FormLabel>
-                    <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an engine type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel></SelectLabel>
-                          {EngineTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="transmission"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select a transmission type</FormLabel>
-                    <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a transmission type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel></SelectLabel>
-                          {TransmissionTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="number_of_seats"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number of Seats</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="4" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="license_plate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>License Plate</FormLabel>
-                    <FormControl>
-                      <Input placeholder="CBC-1234" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Type your description here..." {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="price_per_day"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price per Day</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="3000.00" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="1st Avenue" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Colombo" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="contact_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Number</FormLabel>
-                    <FormControl>
-                      <Input type="tel" placeholder="077-123-4567" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="images"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vehicle Images</FormLabel>
-                    <FormControl>
-                      <Input type="file" multiple accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline" type="button">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="submit">Add</Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          {isLoading ? (
+            <div className="flex justify-center items-center">
+              <LoadingSpinner size={35} stroke={3.5} speed={1} color="black" />
+              <div>Listing your vehicle...</div>
+            </div>
+          ) : (
+            <div className="overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent p-2">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 flex-row">
+                  <FormField
+                    control={form.control}
+                    name="vehicle_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select a vehicle type</FormLabel>
+                        <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a vehicle type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel></SelectLabel>
+                              {VehicleTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="brand"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brand</FormLabel>
+                        <FormControl>
+                          <Input placeholder="BMW" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="model"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Model</FormLabel>
+                        <FormControl>
+                          <Input placeholder="M4 CS" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="year"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Year</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="2025" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="color"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Red" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="engine"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select an engine type</FormLabel>
+                        <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an engine type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel></SelectLabel>
+                              {EngineTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="transmission"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select a transmission type</FormLabel>
+                        <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a transmission type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel></SelectLabel>
+                              {TransmissionTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="number_of_seats"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Number of Seats</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="4" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="license_plate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>License Plate</FormLabel>
+                        <FormControl>
+                          <Input placeholder="CBC-1234" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea className="h-28" placeholder="Type your description here..." {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="price_per_day"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price per Day</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="3000.00" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                          <Input placeholder="1st Avenue" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Colombo" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="contact_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Number</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="077-123-4567" {...field} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="images"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vehicle Images</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => {
+                              const files = e.target.files ? Array.from(e.target.files) : [];
+                              field.onChange(files);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline" type="button">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit">
+                      Create
+                      <Plus size={15} />
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

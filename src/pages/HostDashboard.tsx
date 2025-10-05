@@ -19,7 +19,7 @@ const HostDashboard = () => {
           <div>
             <Button className="flex items-center space-x-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={() => setisAddMentorModalOpen(true)}>
               <Upload className="w-4 h-4" />
-              <span>Add Vehicle</span>
+              <span>Rent Vehicle</span>
             </Button>
           </div>
         </div>

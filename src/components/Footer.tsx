@@ -9,14 +9,22 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* About Column */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">About</h3>
+            <h3 className="text-lg font-semibold mb-4">Company</h3>
             <ul className="space-y-3 ">
               <li>
                 <Link
                   to="/"
                   className="text-gray-400 hover:text-secondary transition-colors"
                 >
-                  Help center
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/"
+                  className="text-gray-400 hover:text-secondary transition-colors"
+                >
+                  How It Works
                 </Link>
               </li>
               <li>
@@ -32,7 +40,7 @@ export function Footer() {
                   to="/"
                   className="text-gray-400 hover:text-secondary transition-colors"
                 >
-                  Press
+                  Press & Media
                 </Link>
               </li>
             </ul>
@@ -40,14 +48,14 @@ export function Footer() {
 
           {/* Join Column */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Join</h3>
+            <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   to="/"
                   className="text-gray-400 hover:text-secondary transition-colors"
                 >
-                  SkillMentor for kids
+                  Partner With Us
                 </Link>
               </li>
               <li>
@@ -55,7 +63,7 @@ export function Footer() {
                   to="/"
                   className="text-gray-400 hover:text-secondary transition-colors"
                 >
-                  SkillMentor for business
+                  Corporate Rentals
                 </Link>
               </li>
               <li>
@@ -63,15 +71,7 @@ export function Footer() {
                   to="/"
                   className="text-gray-400 hover:text-secondary transition-colors"
                 >
-                  Become a tutor
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-gray-400 hover:text-secondary transition-colors"
-                >
-                  Become an ambassador
+                  Become a Host
                 </Link>
               </li>
             </ul>
@@ -79,8 +79,16 @@ export function Footer() {
 
           {/* Other Column */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Other</h3>
+            <h3 className="text-lg font-semibold mb-4">Support & Legal</h3>
             <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/"
+                  className="text-gray-400 hover:text-secondary transition-colors"
+                >
+                  Support Center
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/"
