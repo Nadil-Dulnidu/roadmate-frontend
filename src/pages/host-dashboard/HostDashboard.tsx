@@ -4,7 +4,7 @@ import { DataTable } from "@/pages/host-dashboard/components/data-table";
 import { SectionCards } from "@/pages/host-dashboard/components/section-cards";
 import { SiteHeader } from "@/pages/host-dashboard/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useGetAllBookingByRenterIdQuery, selectBookingsByRenter } from "@/features/booking/bookingSlice";
+import { useGetAllBookingByOwnerIdQuery, selectBookingsByOwner } from "@/features/booking/bookingSlice";
 import { useAppSelector } from "@/app/hook";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
@@ -14,18 +14,18 @@ const HostDashboard = () => {
   const { getToken } = useAuth();
   const { user } = useUser();
   const userId = user?.id;
-  
+
   useEffect(() => {
     const fetchToken = async () => {
-      const token = await getToken({template : "RoadMate"});
+      const token = await getToken({ template: "RoadMate" });
       setAuthToken(token);
     };
     fetchToken();
   }, [getToken]);
 
-  const {isSuccess} = useGetAllBookingByRenterIdQuery({token: authToken, renterId: userId, status: []}, { skip: !userId || !authToken });
-  const bookings = useAppSelector(selectBookingsByRenter(authToken, userId, []));
-  console.log(bookings)
+  const { isSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: [] }, { skip: !userId || !authToken });
+  const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, []));
+  console.log(bookings);
 
   return (
     <SidebarProvider>
@@ -37,9 +37,9 @@ const HostDashboard = () => {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <SectionCards />
               <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
+                <ChartAreaInteractive bookings={bookings} />
               </div>
-              {isSuccess ? (<DataTable data={bookings} />) : "" }
+              {isSuccess ? <DataTable data={bookings} /> : ""}
             </div>
           </div>
         </div>

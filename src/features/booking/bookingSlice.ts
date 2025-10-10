@@ -91,7 +91,21 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         ...(result?.ids?.map((booking_id: number) => ({ type: "Booking" as const, id: booking_id })) || []),
       ],
     }),
-
+    getAllBookingByOwnerId: builder.query<EntityState<Booking, number>, { token: string | null; ownerId: string | undefined; status?: Status[] | undefined }>({
+      query: ({ token, ownerId, status = [] }) => ({
+        url: `/booking/owner/${ownerId}?status=${status.join(",")}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      transformResponse: (response: Booking[]) => {
+        return bookingAdapter.setAll(initialState, response);
+      },
+      providesTags: (result) => [
+        { type: "Booking", id: "LIST" },
+        ...(result?.ids?.map((booking_id: number) => ({ type: "Booking" as const, id: booking_id })) || []),
+      ],
+    }),
     deleteBooking: builder.mutation<void, { token: string | null; id: number }>({
       query: ({ token, id }) => ({
         url: `/booking/${id}`,
@@ -112,6 +126,7 @@ export const {
   useGetBookingByIdQuery,
   useDeleteBookingMutation,
   useGetAllBookingByRenterIdQuery,
+  useGetAllBookingByOwnerIdQuery,
 } = bookingApiSlice;
 
 
@@ -148,3 +163,17 @@ export const selectBookingsByRenter = (token: string | null, renterId: string | 
   const selectBookings = selectBookingsByRenterData(token, renterId, status);
   return (state: RootState) => bookingSelectors.selectAll(selectBookings(state));
 };
+
+// Selector to extract bookings for a specific owner
+const selectBookingsByOwnerResult = bookingApiSlice.endpoints.getAllBookingByOwnerId.select;
+
+const selectBookingsByOwnerData = (token: string | null, ownerId: string | undefined, status?: Status[] | undefined) =>
+  createSelector(
+    (state: RootState) => selectBookingsByOwnerResult({ token, ownerId, status })(state),
+    (bookingsResult) => bookingsResult?.data ?? initialState
+  );
+
+export const selectBookingsByOwner = (token: string | null, ownerId: string | undefined, status?: Status[] | undefined) => {
+  const selectBookings = selectBookingsByOwnerData(token, ownerId, status);
+  return (state: RootState) => bookingSelectors.selectAll(selectBookings(state));
+}

@@ -3,7 +3,7 @@ import { AppSidebar } from "@/pages/host-dashboard/components/app-sidebar"
 import { DataTableFull } from "@/pages/host-dashboard/components/data-table-full"
 import { SiteHeader } from "@/pages/host-dashboard/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { selectBookingsByRenter, useGetAllBookingByRenterIdQuery } from "@/features/booking/bookingSlice"
+import { useGetAllBookingByOwnerIdQuery, selectBookingsByOwner } from "@/features/booking/bookingSlice"
 import { useAuth, useUser } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 
@@ -22,8 +22,8 @@ const BookingPage = () => {
     fetchToken();
   }, [getToken]);
 
-  const {isSuccess} = useGetAllBookingByRenterIdQuery({token: authToken, renterId: userId, status: []}, { skip: !userId || !authToken });
-  const bookings = useAppSelector(selectBookingsByRenter(authToken, userId, []));
+  const {isSuccess} = useGetAllBookingByOwnerIdQuery({token: authToken, ownerId: userId, status: []}, { skip: !userId || !authToken });
+  const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, []));
 
   return (
     <SidebarProvider>
