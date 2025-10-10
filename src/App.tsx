@@ -9,7 +9,9 @@ import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import NotFoundPage from "./pages/NotFoundPage";
 import RenterDashboard from "./pages/RenterDashboard";
 import { ViewAllBookings } from "./features/booking/pages/ViewAllBookings";
-import HostDashboard from "./pages/HostDashboard";
+import HostDashboard from "./pages/host-dashboard/HostDashboard";
+import MyVehiclesPage from "./pages/host-dashboard/MyVehiclesPage";
+import BookingPage from "./pages/host-dashboard/BookingPage";
 
 function App() {
   return (
@@ -33,55 +35,79 @@ function App() {
             </>
           }
         />
-        <Route path="dashboard">
-          <Route path="renter">
-            <Route
-              index
-              element={
-                <>
-                  <SignedIn>
-                    <RenterDashboard />
-                  </SignedIn>
-                  <SignedOut>
-                    <LoginPage />
-                  </SignedOut>
-                </>
-              }
-            />
-            <Route
-              path="allbookings"
-              element={
-                <>
-                  <SignedIn>
-                    <ViewAllBookings />
-                  </SignedIn>
-                  <SignedOut>
-                    <LoginPage />
-                  </SignedOut>
-                </>
-              }
-            />
-          </Route>
-          <Route path="host">
-            <Route
-              index
-              element={
-                <>
-                  <SignedIn>
-                    <HostDashboard />
-                  </SignedIn>
-                  <SignedOut>
-                    <LoginPage />
-                  </SignedOut>
-                </>
-              }
-            />
-          </Route>
+        <Route path="renter-dashboard">
+          <Route
+            index
+            element={
+              <>
+                <SignedIn>
+                  <RenterDashboard />
+                </SignedIn>
+                <SignedOut>
+                  <LoginPage />
+                </SignedOut>
+              </>
+            }
+          />
+          <Route
+            path="allbookings"
+            element={
+              <>
+                <SignedIn>
+                  <ViewAllBookings />
+                </SignedIn>
+                <SignedOut>
+                  <LoginPage />
+                </SignedOut>
+              </>
+            }
+          />
         </Route>
         <Route path="/*" element={<NotFoundPage />} />
       </Route>
       <Route path="auth">
         <Route path="signup" element={<LoginPage />} />
+      </Route>
+      <Route path="host-dashboard">
+        <Route
+          index
+          element={
+            <>
+              <SignedIn>
+                <HostDashboard />
+              </SignedIn>
+              <SignedOut>
+                <LoginPage />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route
+          path="my-vehicles"
+          element={
+            <>
+              <SignedIn>
+                <MyVehiclesPage />
+              </SignedIn>
+              <SignedOut>
+                <LoginPage />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route
+          path="all-bookings"
+          element={
+            <>
+              <SignedIn>
+                <BookingPage />
+              </SignedIn>
+              <SignedOut>
+                <LoginPage />
+              </SignedOut>
+            </>
+          }
+        />
       </Route>
     </Routes>
   );

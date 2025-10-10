@@ -51,7 +51,7 @@ export function Header() {
     <div className={cn("flex items-center gap-2", mobile && "flex-col items-stretch gap-4 w-full")}>
       {isSignedIn ? (
         <>
-          <Link to="/dashboard/renter" className={cn(mobile && "w-full")} onClick={() => mobile && setIsOpen(false)}>
+          <Link to="/renter-dashboard" className={cn(mobile && "w-full")} onClick={() => mobile && setIsOpen(false)}>
             <Button variant="ghost" className={cn(mobile && "w-full")}>
               Dashboard
             </Button>

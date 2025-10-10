@@ -49,7 +49,7 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
         { type: "Vehicle", id: result?.vehicle_id },
       ],
     }),
-    getVehicleByOwner: builder.query<EntityState<FullVehicle, number>, number>({
+    getVehicleByOwner: builder.query<EntityState<FullVehicle, number>, string | undefined>({
       query: (ownerId) => `/listing/vehicle/owner/${ownerId}`,
       transformResponse: (response: FullVehicle[]) => {
         return vehicleAdapter.setAll(initialState, response);
@@ -87,13 +87,12 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
     }),
     updateVehicleStatus: builder.mutation<FullVehicle, { vehicle_id: number; status: string; token: string | null }>({
       query: ({ vehicle_id, status, token }) => ({
-        url: `/listing/vehicle/${vehicle_id}/?status=${status}`,
+        url: `/listing/vehicle/${vehicle_id}?status=${status}`,
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: { status }
       }),
       invalidatesTags: (_result, _error, arg) => [
         { type: "Vehicle", id: arg.vehicle_id },
@@ -156,4 +155,18 @@ export const selectVehicleById = createSelector(
   [selectVehiclesData, (_state, _queryArgs, vehicleId) => vehicleId],
   (vehiclesData, vehicleId) => selectById(vehiclesData, vehicleId)
 );
+
+
+const selectVehicleByOwnerResult = vehicleApiSlice.endpoints.getVehicleByOwner.select;
+const vehicleByOwnerSelectors = vehicleAdapter.getSelectors();
+
+export const selectNotificationsData = (ownerId: string | undefined) =>
+  (state: RootState) =>
+    selectVehicleByOwnerResult(ownerId)(state)?.data ?? initialState;
+
+export const selectAllVehiclesByOwner = (ownerId: string | undefined) =>
+  (state: RootState) =>
+    vehicleByOwnerSelectors.selectAll(selectNotificationsData(ownerId)(state));
+
+
 

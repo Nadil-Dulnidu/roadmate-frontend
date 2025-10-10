@@ -21,11 +21,11 @@ const RenterDashboard = () => {
     if (isLoaded && user?.publicMetadata.role === "RENTER") {
       return;
     } else if (isLoaded && user?.publicMetadata.role === "OWNER") {
-      router("/dashboard/host", { replace: true });
+      router("/host-dashboard", { replace: true });
     } else if (isLoaded && user?.publicMetadata.role === "STAFF") {
-      router("/dashboard/staff", { replace: true });
+      router("/staff-dashboard", { replace: true });
     } else if (isLoaded && user?.publicMetadata.role === "ADMIN") {
-      router("/dashboard/admin", { replace: true });
+      router("/admin-dashboard", { replace: true });
     } else {
       router("/auth/signup");
     }

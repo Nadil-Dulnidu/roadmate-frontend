@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import ScrollTop from "./components/ScrollTop.tsx";
 import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
+import { Toaster } from "./components/ui/sonner.tsx";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById("root")!).render(
           <Routes>
             <Route path="/*" element={<App />} />
           </Routes>
+          <Toaster />
         </Provider>
       </BrowserRouter>
     </ClerkProvider>
