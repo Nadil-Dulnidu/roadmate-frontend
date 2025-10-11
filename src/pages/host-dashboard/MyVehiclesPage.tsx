@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Calendar, Edit, Eye, MapPin, MessageSquare, MoreVertical, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetVehicleByOwnerQuery, selectAllVehiclesByOwner } from "@/features/vehicle/vehicleSlice";
 import { useAppSelector } from "@/app/hook";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import RenderStars from "@/components/RenderStarts";
 import ViewVehicleReviewModal from "@/features/review/components/ViewVehicleReviewModal";
@@ -15,13 +15,24 @@ import type { FullVehicle } from "@/features/vehicle/vehicleTypes";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import EditVehicleModel from "@/features/vehicle/components/EditVehicleModel";
 import DeleteVehicleAlert from "@/features/vehicle/components/DeleteVehicleAlert";
+import { useNavigate } from "react-router";
 
 
 const MyVehiclesPage = () => {
   const { user } = useUser();
+  const { isSignedIn, isLoaded } = useAuth();
   const userId = user?.id;
+  const router = useNavigate();
   useGetVehicleByOwnerQuery(userId);
   const vehicles = useAppSelector(selectAllVehiclesByOwner(userId));
+
+  useEffect(() => {
+      if (isSignedIn && isLoaded && user?.publicMetadata.role === "OWNER") {
+        return;
+      } else {
+        router("/auth/signup");
+      }
+    }, [isLoaded, router, user, isSignedIn]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");

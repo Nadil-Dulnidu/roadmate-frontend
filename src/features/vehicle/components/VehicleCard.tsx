@@ -7,11 +7,13 @@ import { useAuth } from "@clerk/clerk-react";
 import { SignupDialog } from "../../../components/SignUpDialog";
 import { Link } from "react-router";
 import BookingDialog from "@/features/booking/components/BookingDialog";
+import { useUser } from "@clerk/clerk-react";
 
 const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
 
   const handleSchedule = () => {
     if (!isSignedIn) {
@@ -41,7 +43,7 @@ const VehicleCard = ({ vehicle }: { vehicle: FullVehicle }) => {
             </p>
           </div>
           <div>
-            <Button onClick={handleSchedule} variant={"secondary"}>
+            <Button disabled={vehicle.available !== "AVAILABLE" || user?.publicMetadata.role !== "RENTER" || !isSignedIn} onClick={handleSchedule} variant={"secondary"}>
               <BookCheckIcon className="size-5 text-black" />
             </Button>
           </div>

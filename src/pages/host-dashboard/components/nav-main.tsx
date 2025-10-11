@@ -1,10 +1,9 @@
-import { Bell, PlusCircleIcon, type LucideIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import {  PlusCircleIcon, type LucideIcon } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useState } from "react";
 import AddVehicleModel from "@/features/vehicle/components/AddVehicleModel";
 import { Link } from "react-router";
+import { NotificationPopover } from "@/features/notification/components/NotificationPopover";
 
 export function NavMain({
   items,
@@ -30,10 +29,7 @@ export function NavMain({
                 <PlusCircleIcon />
                 <span>Rent Vehicle</span>
               </SidebarMenuButton>
-              <Button size="icon" className="h-9 w-9 shrink-0 group-data-[collapsible=icon]:opacity-0" variant="outline">
-                <Bell />
-                <span className="sr-only">Notifications</span>
-              </Button>
+              <NotificationPopover />
             </SidebarMenuItem>
           </SidebarMenu>
           <SidebarMenu>

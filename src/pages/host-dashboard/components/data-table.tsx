@@ -107,7 +107,7 @@ const columns: ColumnDef<Booking>[] = [
   {
     accessorKey: "customer",
     header: "Customer",
-    cell: ({ row }) => <span>{row.original.renter_id}</span>,
+    cell: ({ row }) => <span>{row.original.customer_name}</span>,
   },
   {
     accessorKey: "vehicle",

@@ -14,22 +14,16 @@ const categories = [
 
 const RenterDashboard = () => {
   const { user } = useUser();
-  const { isLoaded } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useNavigate();
 
   useEffect(() => {
-    if (isLoaded && user?.publicMetadata.role === "RENTER") {
+    if (isSignedIn && isLoaded && user?.publicMetadata.role === "RENTER") {
       return;
-    } else if (isLoaded && user?.publicMetadata.role === "OWNER") {
-      router("/host-dashboard", { replace: true });
-    } else if (isLoaded && user?.publicMetadata.role === "STAFF") {
-      router("/staff-dashboard", { replace: true });
-    } else if (isLoaded && user?.publicMetadata.role === "ADMIN") {
-      router("/admin-dashboard", { replace: true });
     } else {
       router("/auth/signup");
     }
-  }, [isLoaded, router, user]);
+  }, [isLoaded, router, user, isSignedIn]);
 
   return (
     <>

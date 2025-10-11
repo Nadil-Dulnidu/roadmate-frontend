@@ -5,6 +5,7 @@ import { useCreateReviewMutation } from "../reviewSlice";
 import type { Review } from "../reviewTypes";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
 
 interface AddReviewSectionProp {
   vehicleId: number;
@@ -89,16 +90,16 @@ function AddReviewSection({ vehicleId }: AddReviewSectionProp) {
         </div>
         {/* Submit Button */}
         {isSignedIn ? (
-          <button
+          <Button
             type="submit"
-            disabled={isSubmitting || rating === 0 || !name.trim() || !comment.trim()}
-            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            disabled={isSubmitting || rating === 0 || !name.trim() || !comment.trim() || user?.publicMetadata.role !== "RENTER"}
+            className="w-full bg-black text-white py-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
           >
-            {isSubmitting ? "Submitting..." : "Submit Review"}
-          </button>
+            {isSubmitting ? "Submitting..." : (user?.publicMetadata.role === "RENTER" ? "Submit Review" : "Only Renters can Submit")}
+          </Button>
         ) : (
           <Link to="/auth/signup">
-            <button className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors">Sign in to submit review</button>
+            <Button className="w-full bg-black text-white py-6 rounded-lg font-medium hover:bg-gray-800 transition-colors">Sign in to submit review</Button>
           </Link>
         )}
       </form>

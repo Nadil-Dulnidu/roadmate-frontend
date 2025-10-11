@@ -1,8 +1,9 @@
 import type { FullVehicle } from "../vehicle/vehicleTypes";
 
 export interface Booking {
-  readonly booking_id: number;
+  booking_id: number;
   renter_id: string | undefined;
+  customer_name: string;
   vehicle: FullVehicle;
   start_date: string;
   end_date: string;

@@ -6,13 +6,23 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { useGetAllBookingByOwnerIdQuery, selectBookingsByOwner } from "@/features/booking/bookingSlice"
 import { useAuth, useUser } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router"
 
 
 const BookingPage = () => {
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
+  const router = useNavigate();
   const userId = user?.id;
+
+  useEffect(() => {
+    if (isSignedIn && isLoaded && user?.publicMetadata.role === "OWNER") {
+      return;
+    } else {
+      router("/auth/signup");
+    }
+  }, [isLoaded, router, user, isSignedIn]);
   
   useEffect(() => {
     const fetchToken = async () => {

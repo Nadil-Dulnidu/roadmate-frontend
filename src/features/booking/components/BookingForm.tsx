@@ -33,16 +33,15 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
   const total = subtotal + serviceFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!startDate || !endDate) return;
-
-    setIsSubmitting(true);
-
     try {
+      e.preventDefault();
+      if (!startDate || !endDate) 
+        throw new Error("Please select both pickup and return dates");
+      setIsSubmitting(true);
       const token = await getToken({ template: "RoadMate" });
-      console.log(user);
-
       const bookingData: Booking = {
+        booking_id: 0,
+        customer_name: "", // Temporary, will be replaced by backend
         renter_id: user?.id,
         vehicle: vehicle,
         start_date: startDate.toLocaleDateString(),
@@ -81,7 +80,9 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
 
   return (
     <div className="bg-card rounded-lg border p-6 sticky top-24">
-      <h2 className="text-xl font-semibold mb-6">Book {vehicle.brand} {vehicle.model}</h2>
+      <h2 className="text-xl font-semibold mb-6">
+        Book {vehicle.brand} {vehicle.model}
+      </h2>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           {/* Pickup Date */}
@@ -143,8 +144,8 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
           {isSignedIn ? (
             <Button
               type="submit"
-              disabled={!startDate || !endDate || isSubmitting}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center disabled:opacity-90 disabled:cursor-not-allowed"
+              disabled={!startDate || !endDate || isSubmitting || user?.publicMetadata.role !== "RENTER"}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center"
             >
               {isSubmitting ? (
                 <>
@@ -152,12 +153,12 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
                   Processing...
                 </>
               ) : (
-                "Book Now"
+                <>{user?.publicMetadata.role === "RENTER" ? "Book Now" : "Only Renters can Book"}</>
               )}
             </Button>
           ) : (
             <Link to="/auth/signup">
-              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center disabled:opacity-90 disabled:cursor-not-allowed">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center">
                 Sign in to Book
               </Button>
             </Link>

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
-import { useAuth, SignInButton, UserButton } from "@clerk/clerk-react";
+import { useAuth, SignInButton, UserButton, useUser } from "@clerk/clerk-react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -11,10 +11,11 @@ import BecomeHostDialog from "./BeacomeHostDialog";
 import { SignupDialog } from "./SignUpDialog";
 
 export function Header() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isBecomeHostDialogOpen, setIsBecomeHostDialogOpen] = useState(false);
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false);
+  const { user } = useUser();
 
   const handleSubmit = () => {
     if (!isSignedIn) {
@@ -28,30 +29,44 @@ export function Header() {
     <nav className={cn("flex items-center gap-5 text-sm font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
       <Button variant={"ghost"} className="p-0 hover:bg-transparent">
         <Link to="/vehicle/listing" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
-        Vehicles
-      </Link>
+          Vehicles
+        </Link>
       </Button>
       <Button variant={"ghost"} className="p-0 hover:bg-transparent">
         <Link to="/about" className="hover:text-black" onClick={() => mobile && setIsOpen(false)}>
-        About Us
-      </Link>
+          About Us
+        </Link>
       </Button>
-      <Button variant={"ghost"}
-        className="hover:text-black hover:bg-transparent p-0"
-        onClick={() => {
-          if (mobile) setIsOpen(false);
-          handleSubmit();
-        }}
-      >
-        Become a Host
-      </Button>
+      {user?.publicMetadata.role === "RENTER" && (
+        <Button
+          variant={"ghost"}
+          className="hover:text-black hover:bg-transparent p-0"
+          onClick={() => {
+            if (mobile) setIsOpen(false);
+            handleSubmit();
+          }}
+          disabled={isLoaded && user?.publicMetadata.role !== "RENTER"}
+        >
+          Become a Host
+        </Button>
+      )}
     </nav>
   );
   const AuthButtons = ({ mobile = false }: { mobile?: boolean }) => (
     <div className={cn("flex items-center gap-2", mobile && "flex-col items-stretch gap-4 w-full")}>
       {isSignedIn ? (
         <>
-          <Link to="/renter-dashboard" className={cn(mobile && "w-full")} onClick={() => mobile && setIsOpen(false)}>
+          <Link to={
+            user?.publicMetadata.role === "RENTER" 
+            ? "/renter-dashboard" 
+            : user?.publicMetadata.role === "OWNER" 
+            ? "/host-dashboard" 
+            : user?.publicMetadata.role === "ADMIN" 
+            ? "/admin-dashboard" 
+            : user?.publicMetadata.role === "STAFF" 
+            ? "/staff-dashboard" 
+            : "/"
+          } onClick={() => mobile && setIsOpen(false)}>
             <Button variant="ghost" className={cn(mobile && "w-full")}>
               Dashboard
             </Button>
@@ -106,7 +121,7 @@ export function Header() {
           {/* Desktop Auth Buttons */}
           <div className="flex gap-1">
             <div className="flex gap-2">
-              <NotificationPopover />
+              {isSignedIn && user?.publicMetadata.role === "RENTER" && <NotificationPopover />}
               <div className="hidden md:block">
                 <AuthButtons />
               </div>

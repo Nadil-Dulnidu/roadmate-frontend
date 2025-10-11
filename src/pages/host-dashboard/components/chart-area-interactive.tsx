@@ -24,7 +24,11 @@ export function ChartAreaInteractive({ bookings }: ChartAreaInteractiveProps) {
   const [timeRange, setTimeRange] = useState("30d");
 
   useEffect(() => {
-    if (isMobile) setTimeRange("7d");
+    if (isMobile) {
+      setTimeRange("7d");
+    } else {
+      setTimeRange("30d");
+    }
   }, [isMobile]);
 
   const groupedData = useMemo(() => {
@@ -122,7 +126,7 @@ export function ChartAreaInteractive({ bookings }: ChartAreaInteractiveProps) {
                   }
                   formatter={(value, _name, props) => {
                     const bookingCount = props.payload.bookingCount || 0;
-                    return [`Revenue: LKR ${value.toLocaleString()}`, ` (${bookingCount} Bookings)`];
+                    return [`Revenue: Rs. ${value.toLocaleString()}`, ` (${bookingCount} Bookings)`];
                   }}
                 />
               }
