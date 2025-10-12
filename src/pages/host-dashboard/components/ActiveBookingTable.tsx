@@ -1,22 +1,7 @@
 import * as React from "react";
-import {
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
-} from "@dnd-kit/core";
+import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, closestCenter, useSensor, useSensors, type UniqueIdentifier } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   type ColumnDef,
@@ -32,40 +17,23 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  CheckCircle2Icon,
-  ColumnsIcon,
-  GripVerticalIcon,
-  LoaderIcon,
-  MoreVerticalIcon,
-  ChevronDownIcon,
-} from "lucide-react";
+import { CheckCircle2Icon, ColumnsIcon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon, ChevronDownIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Booking } from "@/features/booking/bookingTypes";
 import { format } from "date-fns";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
+import { selectBookingsByOwner, useGetAllBookingByOwnerIdQuery } from "@/features/booking/bookingSlice";
+import { useAppSelector } from "@/app/hook";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({ id });
 
   return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="size-7 text-muted-foreground hover:bg-transparent"
-    >
+    <Button {...attributes} {...listeners} variant="ghost" size="icon" className="size-7 text-muted-foreground hover:bg-transparent">
       <GripVerticalIcon className="size-3 text-muted-foreground" />
       <span className="sr-only">Drag to reorder</span>
     </Button>
@@ -77,32 +45,6 @@ const columns: ColumnDef<Booking>[] = [
     id: "drag",
     header: () => null,
     cell: ({ row }) => <DragHandle id={row.original.booking_id} />,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllRowsSelected() ||
-            (table.getIsSomeRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
   },
   {
     accessorKey: "customer",
@@ -122,15 +64,8 @@ const columns: ColumnDef<Booking>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <Badge
-        variant="outline"
-        className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3 w-fit"
-      >
-        {row.original.status === "COMPLETED" ? (
-          <CheckCircle2Icon className="text-green-500 dark:text-green-400" />
-        ) : (
-          <LoaderIcon />
-        )}
+      <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3 w-fit">
+        {row.original.status === "COMPLETED" ? <CheckCircle2Icon className="text-green-500 dark:text-green-400" /> : <LoaderIcon />}
         {row.original.status}
       </Badge>
     ),
@@ -138,21 +73,12 @@ const columns: ColumnDef<Booking>[] = [
   {
     accessorKey: "days",
     header: "Days",
-    cell: ({ row }) => (
-      <span>
-        {(new Date(row.original.end_date).getTime() -
-          new Date(row.original.start_date).getTime()) /
-          (1000 * 60 * 60 * 24)}{" "}
-        days
-      </span>
-    ),
+    cell: ({ row }) => <span>{(new Date(row.original.end_date).getTime() - new Date(row.original.start_date).getTime()) / (1000 * 60 * 60 * 24)} days</span>,
   },
   {
     accessorKey: "start date",
     header: "Start Date",
-    cell: ({ row }) => (
-      <span>{format(row.original.start_date, "MMM dd, yyyy")}</span>
-    ),
+    cell: ({ row }) => <span>{format(row.original.start_date, "MMM dd, yyyy")}</span>,
   },
   {
     accessorKey: "price",
@@ -171,11 +97,7 @@ const columns: ColumnDef<Booking>[] = [
     cell: () => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-            size="icon"
-          >
+          <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
             <MoreVerticalIcon />
             <span className="sr-only">Open menu</span>
           </Button>
@@ -207,39 +129,40 @@ function DraggableRow({ row }: { row: Row<Booking> }) {
       }}
     >
       {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
+        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
       ))}
     </TableRow>
   );
 }
 
-export function DataTable({ data: initialData }: { data: Booking[] }) {
-  const [data, setData] = React.useState(() => initialData);
+export function ActiveBookingDataTable() {
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const { getToken } = useAuth();
+  const { user } = useUser();
+  const userId = user?.id;
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [showAll, setShowAll] = React.useState(false); // 👈 toggle state
+  const [showAll, setShowAll] = React.useState(false);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
-    useSensor(KeyboardSensor)
-  );
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = await getToken({ template: "RoadMate" });
+      setAuthToken(token);
+    };
+    fetchToken();
+  }, [getToken]);
 
-  const visibleData = React.useMemo(
-    () => (showAll ? data : data.slice(0, 5)), // 👈 conditionally limit
-    [data, showAll]
-  );
+  const { isSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: ["ACTIVE"] }, { skip: !userId || !authToken });
+  const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, ["ACTIVE"]));
 
-  const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => visibleData?.map(({ booking_id }) => booking_id) || [],
-    [visibleData]
-  );
+
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor), useSensor(KeyboardSensor));
+
+  const visibleData = React.useMemo(() => (showAll ? bookings : bookings.slice(0, 4)), [bookings, showAll]);
+
+  const dataIds = React.useMemo<UniqueIdentifier[]>(() => visibleData?.map(({ booking_id }) => booking_id) || [], [visibleData]);
 
   const table = useReactTable({
     data: visibleData,
@@ -263,22 +186,11 @@ export function DataTable({ data: initialData }: { data: Booking[] }) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = data.findIndex((d) => d.booking_id === active.id);
-        const newIndex = data.findIndex((d) => d.booking_id === over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
-    }
-  }
-
   return (
     <div className="flex w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center justify-between w-full gap-2">
-          <div className="font-semibold text-lg">Recent Bookings</div>
+          <div className="font-semibold text-lg">Active Bookings</div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -291,20 +203,9 @@ export function DataTable({ data: initialData }: { data: Booking[] }) {
             <DropdownMenuContent align="end" className="w-56">
               {table
                 .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
-                )
+                .filter((column) => typeof column.accessorFn !== "undefined" && column.getCanHide())
                 .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
+                  <DropdownMenuCheckboxItem key={column.id} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 ))}
@@ -315,24 +216,14 @@ export function DataTable({ data: initialData }: { data: Booking[] }) {
 
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <div className="overflow-hidden rounded-lg border">
-          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-          >
+          <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} sensors={sensors}>
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     ))}
                   </TableRow>
@@ -340,22 +231,16 @@ export function DataTable({ data: initialData }: { data: Booking[] }) {
               </TableHeader>
 
               <TableBody>
-                {table.getRowModel().rows.length ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
+                {table.getRowModel().rows.length && isSuccess ? (
+                  <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
                     {table.getRowModel().rows.map((row) => (
                       <DraggableRow key={row.id} row={row} />
                     ))}
                   </SortableContext>
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results.
+                    <TableCell colSpan={columns.length} className="h-20 font-medium text-center">
+                      No active bookings.
                     </TableCell>
                   </TableRow>
                 )}
@@ -363,17 +248,10 @@ export function DataTable({ data: initialData }: { data: Booking[] }) {
             </Table>
           </DndContext>
         </div>
-
-        {/* 👇 New Show All / Show Less toggle */}
-        {data.length > 5 && (
+        {bookings.length > 4 && (
           <div className="flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAll((prev) => !prev)}
-              className="mt-2"
-            >
-              {showAll ? "Show Less" : `Show All (${data.length})`}
+            <Button variant="outline" size="sm" onClick={() => setShowAll((prev) => !prev)} className="mt-2">
+              {showAll ? "Show Less" : `Show All (${bookings.length})`}
             </Button>
           </div>
         )}
