@@ -12,6 +12,7 @@ import { ViewAllBookings } from "./features/booking/pages/ViewAllBookings";
 import HostDashboard from "./pages/host-dashboard/HostDashboard";
 import MyVehiclesPage from "./pages/host-dashboard/MyVehiclesPage";
 import BookingPage from "./pages/host-dashboard/BookingPage";
+import StaffDashboard from "./pages/staff-dashboard/StaffDashboard";
 
 function App() {
   return (
@@ -101,6 +102,21 @@ function App() {
             <>
               <SignedIn>
                 <BookingPage />
+              </SignedIn>
+              <SignedOut>
+                <LoginPage />
+              </SignedOut>
+            </>
+          }
+        />
+      </Route>
+      <Route path="staff-dashboard">
+        <Route
+          index
+          element={
+            <>
+              <SignedIn>
+                <StaffDashboard />
               </SignedIn>
               <SignedOut>
                 <LoginPage />

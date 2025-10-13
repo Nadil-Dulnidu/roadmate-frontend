@@ -4,7 +4,7 @@ import {
   type EntityState
 } from "@reduxjs/toolkit";
 import type { RootState } from "@/app/store";
-import type { NotificationPayload, NotificationType } from "./notificationType";
+import type { AnnouncementPayload, NotificationPayload, NotificationType } from "./notificationType";
 
 const notificationAdapter = createEntityAdapter<NotificationType, number>({
   selectId: (notification) => {
@@ -62,6 +62,20 @@ export const notificationSlice = apiSlice.injectEndpoints({
         { type: "Notification", id: notification.user_id },
       ],
     }),
+    sendAnnouncement: builder.mutation<void, { token: string | null; announcement: AnnouncementPayload}>({
+      query: ({ token, announcement }) => ({
+        url: `/notification/announcement`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: announcement,
+      }),
+      invalidatesTags: (_result, _error, { announcement }) => [
+        { type: "Notification", id: "LIST" },
+        { type: "Notification", id: announcement.title },
+      ],
+    }),
     deleteNotification: builder.mutation<void, { token: string | null; notificationId: number | undefined }>({
       query: ({ token, notificationId }) => ({
         url: `/notification/${notificationId}`,
@@ -83,6 +97,7 @@ export const {
   useMarkNotificationAsReadMutation,
   useSendNotificationMutation,
   useDeleteNotificationMutation,
+  useSendAnnouncementMutation,
 } = notificationSlice;
 
 const selectNotificationResult = notificationSlice.endpoints.getAllNotifications.select;

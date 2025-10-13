@@ -22,3 +22,8 @@ export interface NotificationPayload {
   notification_type: NotificationTypes[keyof NotificationTypes];
   message: string;
 }
+
+export interface AnnouncementPayload {
+  title: string;
+  message: string;
+}

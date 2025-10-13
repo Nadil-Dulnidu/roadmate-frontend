@@ -1,10 +1,9 @@
 import { apiSlice } from "../api/apiSlice";
 import {
   createEntityAdapter,
-  createSelector,
   type EntityState
 } from "@reduxjs/toolkit";
-import type { FullVehicle, VehicleResponse } from "./vehicleTypes";
+import type { FullVehicle} from "./vehicleTypes";
 import type { RootState } from "@/app/store";
 
 const vehicleAdapter = createEntityAdapter<FullVehicle, number>({
@@ -15,28 +14,20 @@ const initialState = vehicleAdapter.getInitialState();
 
 export const vehicleApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getVehicles: builder.query<{ data: EntityState<FullVehicle, number>; meta: Omit<VehicleResponse, "content"> }, { page: number; size: number; vehicleName?: string | undefined }>({
-      query: ({ page, size, vehicleName }) => {
-        let url = `/listing/vehicle?page=${page}&size=${size}`;
-        if (vehicleName) url += `&vehicleName=${vehicleName}`;
-        return { url };
-      },
-      transformResponse: (response: VehicleResponse) => {
+    getAllVehicles: builder.query<EntityState<FullVehicle, number>, { vehicleStatus?: string[] | undefined, listingStatus?: string[] | undefined }>({
+      query: ({ vehicleStatus, listingStatus }) => {
+        const vehicleStatusQuery = vehicleStatus ? `vehicleStatus=${vehicleStatus.join(",")}` : "";
+        const listingStatusQuery = listingStatus ? `listingStatus=${listingStatus.join(",")}` : "";
         return {
-          data: vehicleAdapter.setAll(initialState, response.content),
-          meta: {
-            totalPages: response.totalPages,
-            totalElements: response.totalElements,
-            number: response.number,
-            size: response.size,
-            first: response.first,
-            last: response.last,
-          },
+          url: `/listing/vehicle?${vehicleStatusQuery}&${listingStatusQuery}`,
         };
+      },
+      transformResponse: (response: FullVehicle[]) => {
+        return vehicleAdapter.setAll(initialState, response);
       },
       providesTags: (result) => [
         { type: "Vehicle", id: "LIST" },
-        ...(result?.data?.ids?.map((vehicle_id) => ({ type: "Vehicle" as const, id: vehicle_id })) || [])
+        ...(result?.ids?.map((vehicle_id: number) => ({ type: "Vehicle" as const, id: vehicle_id })) || [])
       ],
     }),
     getVehicleById: builder.query<FullVehicle, number>({
@@ -109,52 +100,46 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
         },
       }),
       invalidatesTags: [{ type: "Vehicle", id: "LIST" }]
-    })
+    }),
+    updateListingStatus: builder.mutation<FullVehicle, { vehicle_id: number; listing_status: string; token: string | null }>({
+      query: ({ vehicle_id, listing_status, token }) => ({
+        url: `/vehicle/listing-status/${vehicle_id}?listingStatus=${listing_status}`,
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "Vehicle", id: arg.vehicle_id },
+        { type: "Vehicle", id: "LIST" }
+      ]
+    }),
   })
 });
 
 export const {
-  useGetVehiclesQuery,
+  useGetAllVehiclesQuery,
   useGetVehicleByIdQuery,
   useGetVehicleByOwnerQuery,
   useAddVehicleMutation,
   useUpdateVehicleMutation,
   useUpdateVehicleStatusMutation,
-  useDeleteVehicleMutation
+  useDeleteVehicleMutation,
+  useUpdateListingStatusMutation
 } = vehicleApiSlice;
 
-type VehicleQueryArgs = { page: number; size: number; vehicleName?: string };
+const selectVehicleResult = vehicleApiSlice.endpoints.getAllVehicles.select;
 
-const selectVehiclesResult = (queryArgs: VehicleQueryArgs) =>
-  vehicleApiSlice.endpoints.getVehicles.select(queryArgs);
+const vehicleSelectors = vehicleAdapter.getSelectors();
 
-export const selectVehiclesData = createSelector(
-  (state: RootState, queryArgs: VehicleQueryArgs) => selectVehiclesResult(queryArgs)(state),
-  (vehiclesResult) => vehiclesResult?.data?.data ?? initialState
-);
+export const selectVehiclesData = (listingStatus : string[] | undefined, vehicleStatus: string[] | undefined) =>
+  (state: RootState) =>
+    selectVehicleResult({ listingStatus, vehicleStatus })(state)?.data ?? initialState;
 
-export const selectVehiclesMeta = createSelector(
-
-  (state: RootState, queryArgs: VehicleQueryArgs) => selectVehiclesResult(queryArgs)(state),
-  (vehiclesResult) => vehiclesResult?.data?.meta
-);
-
-const { selectAll, selectById, selectIds } = vehicleAdapter.getSelectors();
-
-export const selectAllVehicles = createSelector(
-  [selectVehiclesData],
-  (vehiclesData) => selectAll(vehiclesData)
-);
-
-export const selectVehicleIds = createSelector(
-  [selectVehiclesData],
-  (vehiclesData) => selectIds(vehiclesData)
-);
-
-export const selectVehicleById = createSelector(
-  [selectVehiclesData, (_state, _queryArgs, vehicleId) => vehicleId],
-  (vehiclesData, vehicleId) => selectById(vehiclesData, vehicleId)
-);
+export const selectAllVehicles = (listingStatus : string[] | undefined, vehicleStatus: string[] | undefined) =>
+  (state: RootState) =>
+    vehicleSelectors.selectAll(selectVehiclesData(listingStatus, vehicleStatus)(state));
 
 
 const selectVehicleByOwnerResult = vehicleApiSlice.endpoints.getVehicleByOwner.select;

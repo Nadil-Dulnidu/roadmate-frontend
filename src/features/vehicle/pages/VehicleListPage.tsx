@@ -1,23 +1,24 @@
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { TabsList } from "@radix-ui/react-tabs";
 import VehicleCard from "../components/VehicleCard";
-import { useGetVehiclesQuery, selectAllVehicles } from "../vehicleSlice";
+import { useGetAllVehiclesQuery, selectAllVehicles } from "../vehicleSlice";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { JSX } from "react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/app/hook";
+import { Car } from "lucide-react";
 
 const categories = [
-  {id: "CAR", label: "Cars"}, 
-  {id: "SUV", label: "SUVs"}, 
-  {id: "PICKUP_TRUCK", label: "Pickup Trucks"}, 
-  {id: "VAN", label: "Vans"}, 
-  {id: "MOTORCYCLE", label: "Bikes"}
+  { id: "CAR", label: "Cars" },
+  { id: "SUV", label: "SUVs" },
+  { id: "PICKUP_TRUCK", label: "Pickup Trucks" },
+  { id: "VAN", label: "Vans" },
+  { id: "MOTORCYCLE", label: "Bikes" },
 ];
 
 const VehicleListPage = () => {
-  const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery({ page: 0, size: 8 });
-  const vehicles = useAppSelector(state => selectAllVehicles(state, { page: 0, size: 8 }));
+  const { isLoading, isSuccess, isError, error } = useGetAllVehiclesQuery({ listingStatus: ["APPROVED"], vehicleStatus: [] });
+  const vehicles = useAppSelector((state) => selectAllVehicles(["APPROVED"], [])(state));
 
   const renderVehicles = () => {
     let content: JSX.Element | null = null;
@@ -29,9 +30,15 @@ const VehicleListPage = () => {
           {categories.map((category) => {
             return (
               <TabsContent key={category.id} value={category.id} className="mt-10">
+                {vehicles.length === 0 && (
+                  <div className="p-12 text-center">
+                    <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No vehicles available</p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {vehicles
-                    .filter((v ) => v.vehicle_type === category.id)
+                    .filter((v) => v.vehicle_type === category.id)
                     .map((vehicle) => (
                       <VehicleCard key={vehicle.vehicle_id} vehicle={vehicle} />
                     ))}
@@ -68,7 +75,7 @@ const VehicleListPage = () => {
             </TabsTrigger>
           ))}
         </TabsList>
-          {renderVehicles()}
+        {renderVehicles()}
       </Tabs>
     </div>
   );

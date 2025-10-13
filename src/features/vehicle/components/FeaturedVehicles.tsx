@@ -1,15 +1,16 @@
 import { type JSX } from "react";
 import { Button } from "../../../components/ui/button";
 import VehicleCard from "./VehicleCard";
-import { selectAllVehicles, useGetVehiclesQuery } from "../vehicleSlice";
+import { selectAllVehicles, useGetAllVehiclesQuery } from "../vehicleSlice";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
 import { Link } from "react-router";
 import { useAppSelector } from "@/app/hook";
+import { Car } from "lucide-react";
 
 export const FeaturedVehicles = () => {
-  const { isLoading, isSuccess, isError, error } = useGetVehiclesQuery({ page: 0, size: 4 });
-  const vehicles = useAppSelector(state => selectAllVehicles(state, { page: 0, size: 4 }));
+  const { isLoading, isSuccess, isError, error } = useGetAllVehiclesQuery({ listingStatus: ["APPROVED"], vehicleStatus: [] });
+  const vehicles = useAppSelector((state) => selectAllVehicles(["APPROVED"], [])(state));
 
   const renderedVehicles = () => {
     let content: JSX.Element | null = null;
@@ -17,11 +18,19 @@ export const FeaturedVehicles = () => {
       content = <LoadingSpinner size={35} stroke={3.5} speed={1} color="black" />;
     } else if (isSuccess) {
       content = (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {vehicles.map((car) => (
-            <VehicleCard key={car.vehicle_id} vehicle={car} />
-          ))}
-        </div>
+        <>
+          {vehicles.length === 0 && (
+            <div className="p-12 text-center">
+              <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No featured vehicles available</p>
+            </div>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {vehicles.slice(0, 4).map((car) => (
+              <VehicleCard key={car.vehicle_id} vehicle={car} />
+            ))}
+          </div>
+        </>
       );
     } else if (isError) {
       toast.error("Something went wrong. Error fetching vehicles");

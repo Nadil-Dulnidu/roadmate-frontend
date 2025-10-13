@@ -18,6 +18,8 @@ export interface FullVehicle {
   review_count: number;
   available: string;
   owner_id: string;
+  listing_status: string;
+  listing_date: string;
   images: {
     image_id: number;
     vehicle_id: number;

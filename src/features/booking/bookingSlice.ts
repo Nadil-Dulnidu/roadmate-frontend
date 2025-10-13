@@ -21,9 +21,9 @@ const initialState = bookingAdapter.getInitialState();
 
 export const bookingApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAllBooking: builder.query<EntityState<Booking, number>, string | null>({
-      query: (token) => ({
-        url: "/booking",
+    getAllBooking: builder.query<EntityState<Booking, number>, {token:string | null, status: Status[] | undefined}>({
+      query: ({ token, status }) => ({
+        url: `/booking?status=${status?.join(",")}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -135,20 +135,20 @@ const selectBookingsResult = bookingApiSlice.endpoints.getAllBooking.select;
 
 const bookingSelectors = bookingAdapter.getSelectors();
 
-const selectBookingsData = (token: string | null) =>
+const selectBookingsData = (token: string | null, status?: Status[] | undefined) =>
   createSelector(
-    (state: RootState) => selectBookingsResult(token)(state),
+    (state: RootState) => selectBookingsResult({ token, status })(state),
     (bookingsResult) => bookingsResult?.data ?? initialState
   );
 
-export const selectAllBookings = (token: string | null) =>
-  (state: RootState) => bookingSelectors.selectAll(selectBookingsData(token)(state));
+export const selectAllBookings = (token: string | null, status?: Status[] | undefined) =>
+  (state: RootState) => bookingSelectors.selectAll(selectBookingsData(token, status)(state));
 
-export const selectBookingById = (token: string | null, id: number) =>
-  (state: RootState) => bookingSelectors.selectById(selectBookingsData(token)(state), id);
+export const selectBookingById = (token: string | null, id: number, status?: Status[] | undefined) =>
+  (state: RootState) => bookingSelectors.selectById(selectBookingsData(token, status)(state), id);
 
-export const selectBookingIds = (token: string | null) =>
-  (state: RootState) => bookingSelectors.selectIds(selectBookingsData(token)(state));
+export const selectBookingIds = (token: string | null, status?: Status[] | undefined) =>
+  (state: RootState) => bookingSelectors.selectIds(selectBookingsData(token, status)(state));
 
 // Selector to extract bookings for a specific renter
 const selectBookingsByRenterResult = bookingApiSlice.endpoints.getAllBookingByRenterId.select;

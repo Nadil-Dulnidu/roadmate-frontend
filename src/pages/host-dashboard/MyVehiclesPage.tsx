@@ -24,7 +24,7 @@ const MyVehiclesPage = () => {
   const userId = user?.id;
   const router = useNavigate();
   useGetVehicleByOwnerQuery(userId);
-  const vehicles = useAppSelector(selectAllVehiclesByOwner(userId));
+  const vehicles: FullVehicle[] = useAppSelector(selectAllVehiclesByOwner(userId));
 
   useEffect(() => {
       if (isSignedIn && isLoaded && user?.publicMetadata.role === "OWNER") {
@@ -36,7 +36,6 @@ const MyVehiclesPage = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("newest");
   const [isVehicleReviewModalOpen, setIsVehicleReviewModalOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<FullVehicle | null>(null);
   const [isEditVehicleModalOpen, setIsEditVehicleModalOpen] = useState(false);
@@ -47,11 +46,11 @@ const MyVehiclesPage = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active":
+      case "PENDING":
         return "bg-green-100 text-green-800 border-green-200";
-      case "pending":
+      case "APPROVED":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "inactive":
+      case "CANCELED":
         return "bg-gray-100 text-gray-800 border-gray-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -60,7 +59,7 @@ const MyVehiclesPage = () => {
 
   const filteredVehicles = vehicles.filter((vehicle) => {
     const matchesSearch = vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.vehicle_type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || vehicle.available === filterStatus;
+    const matchesStatus = filterStatus === "all" || vehicle.listing_status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -92,22 +91,9 @@ const MyVehiclesPage = () => {
                     <SelectContent className="">
                       <SelectGroup>
                         <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="newest">Newest First</SelectItem>
-                        <SelectItem value="oldest">Oldest First</SelectItem>
-                        <SelectItem value="rating">Highest Rated</SelectItem>
-                        <SelectItem value="bookings">Most Bookings</SelectItem>
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                        <SelectItem value="APPROVED">Approved</SelectItem>
+                        <SelectItem value="CANCELED">Canceled</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -122,8 +108,8 @@ const MyVehiclesPage = () => {
                       <div className="relative">
                         <img src={vehicle.images[0].image_url} alt={vehicle.model} className="w-full h-64 object-cover" />
                         <div className="absolute top-3 left-3">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(vehicle.available)}`}>
-                            {vehicle.available.charAt(0).toUpperCase() + vehicle.available.slice(1).toLocaleLowerCase()}
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(vehicle.listing_status)}`}>
+                            {vehicle.listing_status.charAt(0).toUpperCase() + vehicle.listing_status.slice(1).toLocaleLowerCase()}
                           </span>
                         </div>
                         <div className="absolute top-3 right-3">
@@ -135,6 +121,7 @@ const MyVehiclesPage = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
+                                disabled={vehicle.listing_status !== "APPROVED"}
                                 onClick={() => {
                                   setSelectedVehicleId(vehicle.vehicle_id);
                                   setSelectedVehicleAvailability(vehicle.available);
@@ -163,12 +150,12 @@ const MyVehiclesPage = () => {
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <h3 className="font-semibold text-gray-900">
-                              {vehicle.brand} {vehicle.model}
+                              {vehicle.brand} {vehicle.model} {vehicle.year}
                             </h3>
                             <p className="text-sm text-gray-600">{vehicle.vehicle_type.charAt(0).toUpperCase() + vehicle.vehicle_type.slice(1).toLocaleLowerCase()}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-gray-900">${vehicle.price_per_day}</p>
+                            <p className="font-bold text-gray-900">{vehicle.price_per_day.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</p>
                             <p className="text-xs text-gray-600">per day</p>
                           </div>
                         </div>
@@ -179,7 +166,7 @@ const MyVehiclesPage = () => {
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar className="w-4 h-4" />
-                            <span>{10} bookings</span>
+                            <span>{0} bookings</span>
                           </div>
                         </div>
                         {/* Rating and Reviews */}
