@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import { useAuth, SignInButton, UserButton, useUser } from "@clerk/clerk-react";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
@@ -15,6 +15,7 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isBecomeHostDialogOpen, setIsBecomeHostDialogOpen] = useState(false);
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const { user } = useUser();
 
   const handleSubmit = () => {
@@ -24,6 +25,15 @@ export function Header() {
     }
     setIsBecomeHostDialogOpen(true);
   };
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user && isLoaded) {
+        setUserRole(user.publicMetadata.role as string | null);
+      }
+    };
+    fetchUserRole();
+  }, [isLoaded, user]);
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
     <nav className={cn("flex items-center gap-5 text-sm font-medium text-gray-800", mobile && "flex-col items-start gap-4")}>
@@ -37,7 +47,7 @@ export function Header() {
           About Us
         </Link>
       </Button>
-      {user?.publicMetadata.role === "RENTER" && (
+      {userRole === "RENTER" && (
         <Button
           variant={"ghost"}
           className="hover:text-black hover:bg-transparent p-0"
@@ -45,7 +55,7 @@ export function Header() {
             if (mobile) setIsOpen(false);
             handleSubmit();
           }}
-          disabled={isLoaded && user?.publicMetadata.role !== "RENTER"}
+          disabled={isLoaded && userRole !== "RENTER"}
         >
           Become a Host
         </Button>
@@ -53,24 +63,9 @@ export function Header() {
     </nav>
   );
   const AuthButtons = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className={cn("flex items-center gap-2", mobile && "flex-col items-stretch gap-4 w-full")}>
+    <div className={cn("flex items-center gap-4", mobile && "flex-col items-stretch gap-4 w-full")}>
       {isSignedIn ? (
         <>
-          <Link to={
-            user?.publicMetadata.role === "RENTER" 
-            ? "/renter-dashboard" 
-            : user?.publicMetadata.role === "OWNER" 
-            ? "/host-dashboard" 
-            : user?.publicMetadata.role === "ADMIN" 
-            ? "/admin-dashboard" 
-            : user?.publicMetadata.role === "STAFF" 
-            ? "/staff-dashboard" 
-            : "/"
-          } onClick={() => mobile && setIsOpen(false)}>
-            <Button variant="ghost" className={cn(mobile && "w-full")}>
-              Dashboard
-            </Button>
-          </Link>
           <div className={cn("flex items-center", mobile && "w-full justify-center")}>
             <UserButton
               appearance={{
@@ -80,6 +75,22 @@ export function Header() {
               }}
             />
           </div>
+          <Link
+            to={
+              userRole === "RENTER"
+                ? "/renter-dashboard"
+                : userRole === "OWNER"
+                ? "/host-dashboard"
+                : userRole === "ADMIN"
+                ? "/admin-dashboard"
+                : userRole === "STAFF"
+                ? "/staff-dashboard"
+                : "/"
+            }
+            onClick={() => mobile && setIsOpen(false)}
+          >
+            <Button className={cn(mobile && "w-full")}>Dashboard</Button>
+          </Link>
         </>
       ) : (
         <>
@@ -120,8 +131,8 @@ export function Header() {
           </div>
           {/* Desktop Auth Buttons */}
           <div className="flex gap-1">
-            <div className="flex gap-2">
-              {isSignedIn && user?.publicMetadata.role === "RENTER" && <NotificationPopover />}
+            <div className="flex gap-3">
+              {isSignedIn && userRole === "RENTER" && <NotificationPopover />}
               <div className="hidden md:block">
                 <AuthButtons />
               </div>

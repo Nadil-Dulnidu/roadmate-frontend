@@ -114,7 +114,7 @@ export function NotificationPopover() {
       }
       content = (
         <div className="p-8 text-center">
-          <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <Bell className="w-8 h-8 text-slate-300  mx-auto mb-2" />
           <p className="text-slate-500 text-sm">No notifications</p>
         </div>
       );
