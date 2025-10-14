@@ -7,9 +7,17 @@ import { useAppSelector } from "@/app/hook";
 import { useGetVehicleByIdQuery } from "@/features/vehicle/vehicleSlice";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import EditReviewModal from "./EditReviewModal";
+import DeleteReviewAlert from "./DeleteReviewAlert";
 
 const ReviewCard: React.FC<{ review: Review; vehicle: number }> = ({ review, vehicle }) => {
   const { data: vehicleData, isSuccess, isLoading, isError, error } = useGetVehicleByIdQuery(vehicle);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectReview, setSelectReview] = useState<Review | null>(null);
+  const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+  const [selectedReviewToDelete, setSelectedReviewToDelete] = useState<number | undefined>(undefined);
+
   const renderStars = (rating: number) => {
     return Array.from(
       {
@@ -33,7 +41,8 @@ const ReviewCard: React.FC<{ review: Review; vehicle: number }> = ({ review, veh
       content = <LoadingSpinner size={35} stroke={3.5} speed={1} color="black" />;
     } else if (isSuccess) {
       content = (
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+        <>
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Vehicle Image */}
             <div className="flex-shrink-0">
@@ -52,17 +61,17 @@ const ReviewCard: React.FC<{ review: Review; vehicle: number }> = ({ review, veh
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Edit review">
+                  <button onClick={() => { setOpenEditModal(true); setSelectReview(review); }} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Edit review">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete review">
+                  <button onClick={() => { setOpenDeleteAlert(true); setSelectedReviewToDelete(review.review_id); }} className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete review">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex">{renderStars(review.rating)}</div>
-                <span className="text-sm text-gray-600">({review.rating}/5)</span>
+                <span className="text-sm text-gray-600">({review.rating})</span>
               </div>
               <p className="text-gray-700 mb-3">{review.comment}</p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-gray-500">
@@ -74,6 +83,13 @@ const ReviewCard: React.FC<{ review: Review; vehicle: number }> = ({ review, veh
             </div>
           </div>
         </div>
+        {selectReview && openEditModal && (
+          <EditReviewModal review={selectReview} onClose={() => setOpenEditModal(false)} isOpen={openEditModal} />
+        )}
+        {selectedReviewToDelete && openDeleteAlert && (
+          <DeleteReviewAlert isDeleteAlertOpen={openDeleteAlert} setIsDeleteAlertOpen={setOpenDeleteAlert} selectedReviewToDelete={selectedReviewToDelete} />
+        )}
+        </>
       );
     } else if (isError) {
       toast.error("Something went wrong. Error fetching Vehicle details");
@@ -103,16 +119,19 @@ const FilterBar: React.FC<{
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="flex items-center gap-2">
         <Filter className="w-4 h-4 text-gray-500" />
-        <select
-          value={sortBy}
-          onChange={(e) => onSortChange(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-        >
-          <option value="date-desc">Newest First</option>
-          <option value="date-asc">Oldest First</option>
-          <option value="rating-desc">Highest Rating</option>
-          <option value="rating-asc">Lowest Rating</option>
-        </select>
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent className="">
+            <SelectGroup>
+              <SelectItem value="date-desc">Newest First</SelectItem>
+              <SelectItem value="date-asc">Oldest First</SelectItem>
+              <SelectItem value="rating-desc">Highest Rating</SelectItem>
+              <SelectItem value="rating-asc">Lowest Rating</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Rating:</span>

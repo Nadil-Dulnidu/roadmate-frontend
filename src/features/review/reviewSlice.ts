@@ -88,17 +88,17 @@ export const reviewSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Review", id: "LIST" }],
     }),
-    updateReview: builder.mutation<Review, { token: string | null; id: number | undefined; review: Review }>({
-      query: ({ token, id, review }) => ({
-        url: `/review/${id}`,
+    updateReview: builder.mutation<Review, { token: string | null; review: Review }>({
+      query: ({ token, review }) => ({
+        url: `/review`,
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: review,
       }),
-      invalidatesTags: (_result, _error, { id }) => [
-        { type: "Review", id },
+      invalidatesTags: (_result, _error, { review }) => [
+        { type: "Review", id: review.review_id },
         { type: "Review", id: "LIST" },
       ],
     }),
