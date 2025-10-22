@@ -154,7 +154,7 @@ function App() {
           }
         />
         <Route
-          path="customers"
+          path="users"
           element={
             <>
               <SignedIn>

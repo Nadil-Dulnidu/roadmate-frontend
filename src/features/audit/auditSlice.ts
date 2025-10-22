@@ -8,8 +8,13 @@ export interface ListingCount {
 
 export const auditApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getListingCountByDate: builder.query<ListingCount[], void>({
-      query: () => "/audit/listing-count",
+    getListingCountByDate: builder.query<ListingCount[], { token: string }>({
+      query: (arg) => ({
+        url: "/audit/listing-count",
+        headers: {
+          Authorization: `Bearer ${arg.token}`,
+        },
+      }),
       providesTags: ["Audit"],
     }),
   }),

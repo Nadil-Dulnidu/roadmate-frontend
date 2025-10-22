@@ -27,8 +27,8 @@ export function SectionCards() {
       fetchToken();
     }, [getToken]);
 
-    const { isSuccess: isBookingSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: [] }, { skip: !userId || !authToken });
-    const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, []));
+    const { isSuccess: isBookingSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: ["ACTIVE", "COMPLETED", "CONFIRMED"] }, { skip: !userId || !authToken });
+    const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, ["ACTIVE", "COMPLETED", "CONFIRMED"]));
 
     const { isSuccess: isVehicleSuccess } = useGetVehicleByOwnerQuery(userId);
     const vehicles = useAppSelector(selectAllVehiclesByOwner(userId));

@@ -204,7 +204,7 @@ export function CustomerTable({ data: initialData }: { data: User[] }) {
     <div className="flex w-full flex-col justify-start gap-6">
       {/* ===== HEADER + FILTER BAR ===== */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-4 lg:px-6">
-        <div className="font-semibold text-lg">Customers</div>
+        <div className="font-semibold text-lg">Users</div>
 
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
           {/* Status Filter */}

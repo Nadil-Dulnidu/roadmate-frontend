@@ -25,8 +25,8 @@ const data = {
       icon: Calendar,
     },
     {
-      title: "Customers",
-      url: "/staff-dashboard/customers",
+      title: "Users",
+      url: "/staff-dashboard/users",
       icon: User,
     },
   ],

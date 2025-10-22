@@ -6,23 +6,23 @@ const TestimonialSection = () => {
   const testimonials = [
     {
       quote: "Booking was quick and easy, the car was spotless, and the entire rental process felt smooth, reliable, and totally stress-free every step.",
-      author: "Sarah Lopez",
+      author: "Nadil Dulnidu",
     },
     {
       quote: "Great service with friendly staff, fair pricing, and a car that was ready on time. The experience was seamless and I will definitely rent again.",
-      author: "Daniel Roberts",
+      author: "Oshen Evanjalo",
     },
     {
       quote: "The app was simple to use and made comparing vehicles easy. My rental was ready when I arrived, clean, and the service team was very supportive.",
-      author: "Priya Kapoor",
+      author: "Sadila Bandara",
     },
     {
       quote: "I loved the flexibility of the rental terms, and customer support was quick to respond. The vehicle was well maintained and smooth to drive.",
-      author: "Ahmed Mahmood",
+      author: "S Jathusha",
     },
     {
       quote: "Everything went smoothly from booking to return. The vehicle was reliable, comfortable, and the entire rental felt convenient and stress-free.",
-      author: "Emily Turner",
+      author: "Dineth Sasmitha",
     },
   ];
   return (

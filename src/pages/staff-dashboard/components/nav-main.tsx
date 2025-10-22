@@ -35,7 +35,7 @@ export function NavMain({
           </SidebarMenu>
           <SidebarMenu>
             {items.map((item) => (
-              <NavLink to={item.url} key={item.title} className={({ isActive }) => (isActive ? "bg-accent text-black rounded-md" : "text-muted-foreground hover:bg-accent hover:text-black hover:rounded-md")}>
+              <NavLink to={item.url} key={item.title}>
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton tooltip={item.title}>
                     {item.icon && <item.icon />}
