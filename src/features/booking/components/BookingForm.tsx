@@ -29,8 +29,8 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
 
   const days = calculateDays();
   const subtotal = vehicle.price_per_day * days;
-  const serviceFee = Math.round(subtotal * 0.1);
-  const total = subtotal + serviceFee;
+  const TaxFee = Math.round(subtotal * 0.02);
+  const total = subtotal + TaxFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
     try {
@@ -65,7 +65,7 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
         total_price: total,
         diff_days: days,
         sub_total: subtotal,
-        service_fee: serviceFee,
+        tax_fee: TaxFee,
       };
       toast.success(`Booking submitted for ${vehicle.year} ${vehicle.brand} ${vehicle.model}`);
       const checkoutId = `${vehicle.vehicle_id}-${Date.now()}`;
@@ -96,7 +96,7 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={startDate} onSelect={setStartDate} disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} initialFocus />
+                <Calendar mode="single" selected={startDate} onSelect={setStartDate} disabled={(date) => date <= new Date(new Date().setHours(0, 0, 0, 0))} initialFocus />
               </PopoverContent>
             </Popover>
           </div>
@@ -128,10 +128,10 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
               </div>
               <div className="flex justify-between">
                 <div className="flex items-center">
-                  <span className="text-muted-foreground">Service fee</span>
+                  <span className="text-muted-foreground">Tax fee</span>
                   <Info className="h-3 w-3 text-muted-foreground ml-1" />
                 </div>
-                <span>{serviceFee.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>
+                <span>{TaxFee.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>
               </div>
               <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                 <span>Total</span>
@@ -144,7 +144,7 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
           {isSignedIn ? (
             <Button
               type="submit"
-              disabled={!startDate || !endDate || isSubmitting || user?.publicMetadata.role !== "RENTER"}
+              disabled={!startDate || !endDate || isSubmitting || user?.publicMetadata.role !== "RENTER" || vehicle.available !== "AVAILABLE"}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 rounded-lg font-medium mt-4 flex items-center justify-center"
             >
               {isSubmitting ? (
@@ -153,7 +153,7 @@ export function BookingForm({ vehicle }: { vehicle: FullVehicle }) {
                   Processing...
                 </>
               ) : (
-                <>{user?.publicMetadata.role === "RENTER" ? "Book Now" : "Only Renters can Book"}</>
+                <>{vehicle.available !== "AVAILABLE" ? "Reserved" : user?.publicMetadata.role === "RENTER" ? "Book Now" : "Only Renters can Book"}</>
               )}
             </Button>
           ) : (

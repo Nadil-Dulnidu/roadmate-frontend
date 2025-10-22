@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/home/HomePage";
@@ -13,6 +13,9 @@ import HostDashboard from "./pages/host-dashboard/HostDashboard";
 import MyVehiclesPage from "./pages/host-dashboard/MyVehiclesPage";
 import BookingPage from "./pages/host-dashboard/BookingPage";
 import StaffDashboard from "./pages/staff-dashboard/StaffDashboard";
+import AllVehiclesPage from "./pages/staff-dashboard/AllVehiclesPage";
+import AllBookingsPage from "./pages/staff-dashboard/AllBookingsPage";
+import CustomerPage from "./pages/staff-dashboard/CustomerPage";
 
 function App() {
   return (
@@ -31,7 +34,7 @@ function App() {
                 <CheckoutPage />
               </SignedIn>
               <SignedOut>
-                <LoginPage />
+                <Navigate to="/auth/signup" replace />
               </SignedOut>
             </>
           }
@@ -45,20 +48,20 @@ function App() {
                   <RenterDashboard />
                 </SignedIn>
                 <SignedOut>
-                  <LoginPage />
+                  <Navigate to="/auth/signup" replace />
                 </SignedOut>
               </>
             }
           />
           <Route
-            path="allbookings"
+            path="all-bookings"
             element={
               <>
                 <SignedIn>
                   <ViewAllBookings />
                 </SignedIn>
                 <SignedOut>
-                  <LoginPage />
+                  <Navigate to="/auth/signup" replace />
                 </SignedOut>
               </>
             }
@@ -78,7 +81,7 @@ function App() {
                 <HostDashboard />
               </SignedIn>
               <SignedOut>
-                <LoginPage />
+                <Navigate to="/auth/signup" replace />
               </SignedOut>
             </>
           }
@@ -91,7 +94,7 @@ function App() {
                 <MyVehiclesPage />
               </SignedIn>
               <SignedOut>
-                <LoginPage />
+                <Navigate to="/auth/signup" replace />
               </SignedOut>
             </>
           }
@@ -104,7 +107,7 @@ function App() {
                 <BookingPage />
               </SignedIn>
               <SignedOut>
-                <LoginPage />
+                <Navigate to="/auth/signup" replace />
               </SignedOut>
             </>
           }
@@ -119,7 +122,46 @@ function App() {
                 <StaffDashboard />
               </SignedIn>
               <SignedOut>
-                <LoginPage />
+                <Navigate to="/auth/signup" replace />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route
+          path="vehicles"
+          element={
+            <>
+              <SignedIn>
+                <AllVehiclesPage />
+              </SignedIn>
+              <SignedOut>
+                <Navigate to="/auth/signup" replace />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route
+          path="bookings"
+          element={
+            <>
+              <SignedIn>
+                <AllBookingsPage />
+              </SignedIn>
+              <SignedOut>
+                <Navigate to="/auth/signup" replace />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route
+          path="customers"
+          element={
+            <>
+              <SignedIn>
+                <CustomerPage/>
+              </SignedIn>
+              <SignedOut>
+                <Navigate to="/auth/signup" replace />
               </SignedOut>
             </>
           }

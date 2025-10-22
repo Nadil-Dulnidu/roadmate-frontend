@@ -1,24 +1,11 @@
-import * as React from "react"
-import {
-  ArrowUpCircleIcon,
-  Calendar,
-  Car,
-  LayoutDashboardIcon,
-  User,
-} from "lucide-react"
+import * as React from "react";
+import { Calendar, Car, Home, LayoutDashboardIcon, User } from "lucide-react";
 
-import { NavMain } from "@/pages/staff-dashboard/components/nav-main"
-import { NavUser } from "@/pages/staff-dashboard/components/nav-user"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Link } from "react-router"
+import { NavMain } from "@/pages/staff-dashboard/components/nav-main";
+import { NavUser } from "@/pages/staff-dashboard/components/nav-user";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Link } from "react-router";
+import Logo from "@/assets/logo.png";
 
 const data = {
   navMain: [
@@ -28,13 +15,13 @@ const data = {
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Vehicle Requests",
-      url: "/staff-dashboard/vehicle-requests",
+      title: "Vehicles",
+      url: "/staff-dashboard/vehicles",
       icon: Car,
     },
     {
       title: "Bookings",
-      url: "/staff-dashboard/all-bookings",
+      url: "/staff-dashboard/bookings",
       icon: Calendar,
     },
     {
@@ -43,7 +30,7 @@ const data = {
       icon: User,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -51,12 +38,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5" tooltip={"Home"}>
               <Link to="/">
-                <ArrowUpCircleIcon className="h-5 w-5" />
+                <Home>
+                  {" "}
+                  <img src={Logo} alt="RoadMate Logo" className="size-8 rounded-full" />
+                </Home>
                 <span className="text-base font-semibold">RoadMate</span>
               </Link>
             </SidebarMenuButton>
@@ -67,8 +54,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser/>
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

@@ -15,9 +15,9 @@ const initialState = userAdapter.getInitialState();
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getUsers: builder.query<EntityState<User, number>, string | null>({
-      query: (token) => ({
-        url: "/user",
+    getUsers: builder.query<EntityState<User, number>, { roles: UserRole[] | null, token: string | null }>({
+      query: ({ roles, token }) => ({
+        url: "/user?" + (roles ? `role=${roles.join(",")}` : ""),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -91,17 +91,17 @@ export const selectUsersResult = userApiSlice.endpoints.getUsers.select;
 
 const userSelectors = userAdapter.getSelectors();
 
-const selectUsersData = (token: string | null) =>
+const selectUsersData = (token: string | null, roles: UserRole[] | null) =>
   createSelector(
-    (state: RootState) => selectUsersResult(token)(state),
+    (state: RootState) => selectUsersResult({ token, roles })(state),
     (usersResult) => usersResult?.data ?? initialState
   );
 
-export const selectAllUsers = (token: string | null) =>
-  (state: RootState) => userSelectors.selectAll(selectUsersData(token)(state));
+export const selectAllUsers = (token: string | null, roles: UserRole[] | null) =>
+  (state: RootState) => userSelectors.selectAll(selectUsersData(token, roles)(state));
 
-export const selectUserById = (token: string | null, id: number) =>
-  (state: RootState) => userSelectors.selectById(selectUsersData(token)(state), id);
+export const selectUserById = (token: string | null, roles: UserRole[] | null, id: number) =>
+  (state: RootState) => userSelectors.selectById(selectUsersData(token, roles)(state), id);
 
-export const selectUserIds = (token: string | null) =>
-  (state: RootState) => userSelectors.selectIds(selectUsersData(token)(state));
+export const selectUserIds = (token: string | null, roles: UserRole[] | null) =>
+  (state: RootState) => userSelectors.selectIds(selectUsersData(token, roles)(state));

@@ -1,12 +1,13 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { AlertCircle, Bell, Car, Check, Clock, CreditCard } from "lucide-react";
-import { useGetAllNotificationsQuery, selectAllNotifications, useMarkNotificationAsReadMutation } from "../notificationSlice";
+import { AlertCircle, Bell, Car, Check, Clock, CreditCard, Trash2 } from "lucide-react";
+import { useGetAllNotificationsQuery, selectAllNotifications, useMarkNotificationAsReadMutation, useDeleteNotificationMutation } from "../notificationSlice";
 import { useAppSelector } from "@/app/hook";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState, type JSX } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
 import TimeAgo from "@/components/TimeAgo";
+import { Button } from "@/components/ui/button";
 
 export function NotificationPopover() {
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -26,10 +27,9 @@ export function NotificationPopover() {
 
   const { error, isLoading, isSuccess, isError } = useGetAllNotificationsQuery({ userId: userId, token: authToken }, { skip: !authToken || !userId });
   const notifications = useAppSelector(selectAllNotifications(authToken, userId));
-  console.log("Notifications:", notifications);
-  console.log(notifications.length);
   const unreadCount = notifications.filter((n) => !n.is_read).length;
   const [markNotificationAsRead] = useMarkNotificationAsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -58,6 +58,15 @@ export function NotificationPopover() {
     console.log("Mark all as read");
   };
 
+  const handleDelete = async (id: number) => {
+      try{
+        await deleteNotification({ notificationId: id, token: authToken }).unwrap();
+      } catch (error) {
+        toast.error("Failed to delete notification.");
+        console.error(`Failed to delete notification ${id}:`, error);
+      }
+  }
+
   const renderNotifications = () => {
     let content: JSX.Element | null = null;
     if (isLoading) {
@@ -81,7 +90,12 @@ export function NotificationPopover() {
                         <div className="flex-1">
                           <h4 className={`text-sm font-medium ${!notification.is_read ? "text-slate-900" : "text-slate-700"}`}>{notification.title}</h4>
                           <p className="text-sm text-slate-600 mt-1 leading-relaxed">{notification.message}</p>
-                          <p className="text-xs text-slate-500 mt-2">{<TimeAgo timestamp={notification.created_at} />}</p>
+                          <div className="flex align-middle items-center justify-between">
+                            <p className="text-xs text-slate-500 mt-2">{<TimeAgo timestamp={notification.created_at} />}</p>
+                            <Button className="flex justify-center items-center " variant="ghost" size="icon" onClick={() => handleDelete(notification.notification_id)} title="Delete notification">
+                              <Trash2 className="w-3 h-3 text-red-400" />
+                            </Button>
+                          </div>
                         </div>
                         {!notification.is_read && (
                           <button

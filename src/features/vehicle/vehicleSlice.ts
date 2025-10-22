@@ -103,7 +103,7 @@ export const vehicleApiSlice = apiSlice.injectEndpoints({
     }),
     updateListingStatus: builder.mutation<FullVehicle, { vehicle_id: number; listing_status: string; token: string | null }>({
       query: ({ vehicle_id, listing_status, token }) => ({
-        url: `/vehicle/listing-status/${vehicle_id}?listingStatus=${listing_status}`,
+        url: `/listing/vehicle/listing-status/${vehicle_id}?listingStatus=${listing_status}`,
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,6 @@ export const {
 } = vehicleApiSlice;
 
 const selectVehicleResult = vehicleApiSlice.endpoints.getAllVehicles.select;
-
 const vehicleSelectors = vehicleAdapter.getSelectors();
 
 export const selectVehiclesData = (listingStatus : string[] | undefined, vehicleStatus: string[] | undefined) =>

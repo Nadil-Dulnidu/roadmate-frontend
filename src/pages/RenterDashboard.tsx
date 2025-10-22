@@ -9,7 +9,6 @@ import RenterMyReviewsSection from "@/features/review/components/RenterMyReviews
 const categories = [
   { id: "Booking", label: "My Bookings" },
   { id: "Review", label: "My Reviews" },
-  { id: "Payments", label: "My Payments" },
 ];
 
 const RenterDashboard = () => {
@@ -21,7 +20,7 @@ const RenterDashboard = () => {
     if (isSignedIn && isLoaded && user?.publicMetadata.role === "RENTER") {
       return;
     } else {
-      router("/auth/signup");
+      router("/auth/signup", { replace: true } );
     }
   }, [isLoaded, router, user, isSignedIn]);
 

@@ -4,8 +4,8 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "@/features/payment/components/CheckoutForm";
 import { STRIPE_PUBLIC_KEY } from "@/config/env";
 import { useCreatePaymentIntentMutation } from "../paymentSlice";
-import { Navigate, useLocation } from "react-router";
-import { useAuth } from "@clerk/clerk-react";
+import { Navigate, useLocation, useNavigate } from "react-router";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { toast } from "sonner";
 
 const stripePromise = loadStripe(`${STRIPE_PUBLIC_KEY}`);
@@ -14,8 +14,18 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState("");
   const [createPaymentIntent] = useCreatePaymentIntentMutation();
   const location = useLocation();
-  const { getToken } = useAuth();
+  const { getToken,isSignedIn, isLoaded } = useAuth();
   const stateData = location.state;
+  const { user } = useUser();
+  const router = useNavigate();
+
+  useEffect(() => {
+    if (isSignedIn && isLoaded && user?.publicMetadata.role === "RENTER") {
+      return;
+    } else {
+      router("/auth/signup");
+    }
+  }, [isLoaded, router, user, isSignedIn]);
 
   useEffect(() => {
     const fetchPaymentIntent = async () => {

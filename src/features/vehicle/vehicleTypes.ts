@@ -11,6 +11,7 @@ export interface FullVehicle {
   license_plate: string;
   description: string;
   price_per_day: number;
+  base_price: number;
   location: string;
   city: string;
   contact_number: string;
@@ -48,7 +49,7 @@ export interface NewVehicle {
   number_of_seats: number;
   license_plate: string;
   description: string;
-  price_per_day: number;
+  base_price: number;
   location: string;
   city: string;
   contact_number: string;

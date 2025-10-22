@@ -37,7 +37,7 @@ export function ChartAreaInteractive({ bookings }: ChartAreaInteractiveProps) {
     bookings.forEach((booking) => {
       const date = new Date(booking.created_at).toISOString().split("T")[0];
       if (!map[date]) map[date] = { date, totalRevenue: 0, bookingCount: 0 };
-      map[date].totalRevenue += booking.total_price || 0;
+      map[date].totalRevenue += booking.vehicle.base_price || 0;
       map[date].bookingCount += 1;
     });
 

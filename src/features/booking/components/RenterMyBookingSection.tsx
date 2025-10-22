@@ -6,13 +6,14 @@ import { Car, Calendar } from "lucide-react";
 import RenterRecentBookings from "@/features/booking/components/RenterRecentBookings";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { Link } from "react-router";
+import RenterPendingBookings from "./RenterPendingBookings";
 
 const RenterMyBookingSection = () => {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const { getToken } = useAuth();
   const { user } = useUser();
   const userId = user?.id;
-  
+
   useEffect(() => {
     const fetchToken = async () => {
       const token = await getToken();
@@ -52,7 +53,7 @@ const RenterMyBookingSection = () => {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Active Rentals */}
         <div className="lg:col-span-2">
           <div className="bg-card rounded-lg border border-border p-6 min-h-72">
@@ -62,13 +63,22 @@ const RenterMyBookingSection = () => {
         </div>
         {/* Recent Bookings */}
         <div>
-          <div className="bg-card rounded-lg border border-border p-6 min-h-72">
+          <div className="bg-card rounded-lg border border-border p-6 min-h-72 relative">
             <h3 className="text-lg font-semibold mb-4">Recent Bookings</h3>
             <RenterRecentBookings />
-            <Link to="/dashboard/renter/allbookings">
-              <button className="w-full mt-10 text-sm text-primary hover:underline">View All Bookings</button>
-            </Link>
+            <div className="absolute bottom-4  left-1/2 transform -translate-x-1/2 w-full text-center">
+              <Link to="/renter-dashboard/all-bookings">
+                <button className="w-full mt-10 text-sm text-primary hover:underline">View All Bookings</button>
+              </Link>
+            </div>
           </div>
+        </div>
+      </div>
+      <div>
+        {/* Pending Bookings */}
+        <div className="bg-card rounded-lg border border-border p-6 min-h-72 relative mt-6">
+          <h3 className="text-lg font-semibold mb-4">Pending Bookings</h3>
+          <RenterPendingBookings />
         </div>
       </div>
     </div>

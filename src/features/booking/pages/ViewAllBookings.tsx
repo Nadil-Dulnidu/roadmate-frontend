@@ -9,6 +9,10 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router"
+import type { Booking, RentalStateDetails } from "../bookingTypes";
+import DeleteBookingAlert from "../components/DeleteBookingAlert";
 
 export function ViewAllBookings() {
   const { getToken } = useAuth();
@@ -18,6 +22,19 @@ export function ViewAllBookings() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 3;
+  const [selectedBookingToDelete, setSelectedBookingToDelete] = useState<number | undefined>(undefined);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const navigate = useNavigate();
+  const { isSignedIn, isLoaded } = useAuth();
+
+
+  useEffect(() => {
+    if (isSignedIn && isLoaded && user?.publicMetadata.role === "RENTER") {
+      return;
+    } else {
+      navigate("/auth/signup", { replace: true } );
+    }
+  }, [isLoaded, navigate, user, isSignedIn]);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -72,6 +89,38 @@ export function ViewAllBookings() {
     }
   };
 
+  const handlePayment = async (booking: Booking) => {
+    try {
+      if (!booking) {
+        throw new Error("Booking information is missing.");
+      }
+      const startDate = new Date(booking.start_date);
+      const endDate = new Date(booking.end_date);
+
+      const timeDiff = endDate.getTime() - startDate.getTime();
+      const days = timeDiff / (1000 * 60 * 60 * 24);
+      const subtotal = booking.vehicle.price_per_day * days;
+      const TaxFee = Math.round(subtotal * 0.02);
+
+      const stateData: RentalStateDetails = {
+        renter_id: user?.id,
+        booking_id: booking.booking_id,
+        vehicle: booking.vehicle,
+        start_date: booking.start_date,
+        end_date: booking.end_date,
+        total_price: booking.total_price,
+        diff_days: days,
+        sub_total: subtotal,
+        tax_fee: TaxFee,
+      };
+      const checkoutId = `${booking.vehicle.vehicle_id}-${Date.now()}`;
+      navigate(`/checkout/${checkoutId}`, { state: stateData });
+    } catch (error) {
+      console.error("Payment processing error:", error);
+      toast.error("Payment processing failed. Please try again.");
+    }
+  };
+
   const RenderBookings = () => {
     let content: JSX.Element | null = null;
     if (isLoading) {
@@ -112,6 +161,17 @@ export function ViewAllBookings() {
                           <span>{(new Date(booking.end_date).getTime() - new Date(booking.start_date).getTime()) / (1000 * 60 * 60 * 24)} days</span>
                         </div>
                       </div>
+                      {booking.status === "PENDING" && (
+                        <div className="flex gap-2">
+                          <Button onClick={()=>{
+                            setSelectedBookingToDelete(booking.booking_id);
+                            setIsDeleteAlertOpen(true);
+                          }} variant={"destructive"}  className=" mt-3 p-2 text-xs h-6 text-primary-foreground">
+                            Cancel
+                          </Button>
+                          <Button onClick={async () => { await handlePayment(booking) }} className="mt-3 text-xs p-2 h-6 text-primary-foreground">Pay Now</Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   {/* Status and Amount */}
@@ -149,6 +209,7 @@ export function ViewAllBookings() {
               </Pagination>
             </div>
           )}
+          {selectedBookingToDelete && <DeleteBookingAlert isDeleteAlertOpen={isDeleteAlertOpen} setIsDeleteAlertOpen={setIsDeleteAlertOpen} selectedBookingToDelete={selectedBookingToDelete} />}
         </>
       );
     } else if (isError) {
@@ -173,10 +234,15 @@ export function ViewAllBookings() {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold mb-2">All Bookings</h2>
-        <p className="text-muted-foreground">Manage and view your rental history</p>
+          <p className="text-muted-foreground">Manage and view your rental history</p>
         </div>
         <div>
-          <Link to="/dashboard/renter"> <p className="text-primary text-sm font-medium">Dashboard <ArrowRight className="inline-block ml-1 size-5" /></p></Link>
+          <Link to="/renter-dashboard">
+            {" "}
+            <p className="text-primary text-sm font-medium">
+              Dashboard <ArrowRight className="inline-block ml-1 size-5" />
+            </p>
+          </Link>
         </div>
       </div>
       {/* Stats Cards */}

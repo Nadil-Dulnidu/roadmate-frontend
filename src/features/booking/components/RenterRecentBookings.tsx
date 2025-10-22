@@ -4,6 +4,7 @@ import { useEffect, useState, type JSX } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useAppSelector } from "@/app/hook";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const RenterRecentBookings = () => {
   const { getToken } = useAuth();
@@ -41,13 +42,15 @@ const RenterRecentBookings = () => {
               {allBookings.slice(0, 3).map((booking) => (
                 <div key={booking.booking_id} className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium text-sm">
+                   <div className="flex-col gap-2">
+                     <p className="font-medium text-sm">
                       {booking.vehicle.brand} {booking.vehicle.model} {booking.vehicle.year}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {booking.start_date} - {booking.end_date}
+                      {format(booking.start_date, "MMM dd, yyyy")} - {format(booking.end_date, "MMM dd, yyyy")}
                     </p>
-                    <p className="text-xs text-primary font-medium">Rate</p>
+                    <p className="text-xs text-primary font-medium bg-neutral-200 w-fit py-1 rounded-full px-2 mt-1">{booking.status.charAt(0).toUpperCase() + booking.status.slice(1).toLocaleLowerCase()}</p>
+                   </div>
                   </div>
                   <p className="font-medium text-sm">{booking.total_price.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</p>
                 </div>

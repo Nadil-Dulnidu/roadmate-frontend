@@ -160,7 +160,7 @@ export function AllActiveBookingDataTable() {
     <div className="flex w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center justify-between w-full gap-2">
-          <div className="font-semibold text-lg">Active Bookings</div>
+          <div className="font-semibold text-lg">Active Rentals</div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -210,7 +210,7 @@ export function AllActiveBookingDataTable() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={columns.length} className="h-20 font-medium text-center">
-                      No active bookings.
+                      No active rentals.
                     </TableCell>
                   </TableRow>
                 )}

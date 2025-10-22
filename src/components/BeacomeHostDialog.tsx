@@ -5,6 +5,7 @@ import { useUpdateUserRoleMutation } from "@/features/user/userSlice";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import LoadingSpinner from "./LoadingSpinner";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 interface BecomeHostDialogProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export default function BecomeHostDialog({ isOpen, onClose }: BecomeHostDialogPr
   const [updateUserRole, { isLoading }] = useUpdateUserRoleMutation();
   const { getToken } = useAuth();
   const { user } = useUser();
+  const navigate = useNavigate();
 
   const onConfirm = async () => {
     const token = await getToken({ template: "RoadMate" });
@@ -24,6 +26,7 @@ export default function BecomeHostDialog({ isOpen, onClose }: BecomeHostDialogPr
       toast.error("Failed to become a host");
     } else {
       toast.success("Successfully became a host");
+      navigate("/");
     }
     onClose();
   };

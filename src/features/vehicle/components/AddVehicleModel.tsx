@@ -51,7 +51,7 @@ interface FormData {
   number_of_seats: number;
   license_plate: string;
   description: string;
-  price_per_day: number;
+  base_price: number;
   location: string;
   city: string;
   contact_number: string;
@@ -69,7 +69,7 @@ const formSchema = z.object({
   number_of_seats: z.preprocess((val) => Number(val), z.number().min(1).max(100).positive({ message: "Number of seats must be a positive number" })),
   license_plate: z.string().nonempty({ message: "License plate is required" }),
   description: z.string().nonempty({ message: "Description is required" }),
-  price_per_day: z.preprocess((val) => Number(val), z.number().min(0).positive({ message: "Price per day must be a positive number" })),
+  base_price: z.preprocess((val) => Number(val), z.number().min(0).positive({ message: "Base price must be a positive number" })),
   location: z.string().nonempty({ message: "Location is required" }),
   city: z.string().nonempty({ message: "City is required" }),
   contact_number: z.string().nonempty({ message: "Contact number is required" }),
@@ -95,7 +95,7 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
       number_of_seats: "",
       license_plate: "",
       description: "",
-      price_per_day: "",
+      base_price: "",
       location: "",
       city: "",
       contact_number: "",
@@ -153,7 +153,7 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
         number_of_seats: data.number_of_seats,
         license_plate: data.license_plate,
         description: data.description,
-        price_per_day: data.price_per_day,
+        base_price: data.base_price,
         location: data.location,
         city: data.city,
         contact_number: data.contact_number,
@@ -377,10 +377,10 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
                   />
                   <FormField
                     control={form.control}
-                    name="price_per_day"
+                    name="base_price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price per Day</FormLabel>
+                        <FormLabel>Base Price (LKR)</FormLabel>
                         <FormControl>
                           <Input type="number" placeholder="3000.00" {...field} value={field.value === undefined || field.value === null ? "" : String(field.value)} />
                         </FormControl>

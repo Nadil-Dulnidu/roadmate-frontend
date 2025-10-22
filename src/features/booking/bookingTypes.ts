@@ -24,7 +24,7 @@ export interface RentalStateDetails {
   total_price: number;
   diff_days: number;
   sub_total: number;
-  service_fee: number;
+  tax_fee: number;
 }
 
 export type BookingPageResponse = {

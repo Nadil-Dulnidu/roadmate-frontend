@@ -1,4 +1,5 @@
 import type { RentalStateDetails } from '@/features/booking/bookingTypes';
+import { format } from 'date-fns';
 
 export function OrderSummary({vehicle}:{vehicle: RentalStateDetails}) {
   return <div className="bg-white border border-gray-200 rounded-lg sticky top-24">
@@ -15,7 +16,7 @@ export function OrderSummary({vehicle}:{vehicle: RentalStateDetails}) {
           <div className="flex justify-between mb-2">
             <span>Rental Period:</span>
             <span>
-              {vehicle.start_date} -{' '}{vehicle.end_date}
+              {format(new Date(vehicle.start_date), "MMM dd, yyyy")} -{' '}{format(new Date(vehicle.end_date), "MMM dd, yyyy")}
             </span>
           </div>
           <div className="flex justify-between mb-2">
@@ -31,8 +32,8 @@ export function OrderSummary({vehicle}:{vehicle: RentalStateDetails}) {
             <span>Rs.{vehicle.sub_total.toFixed(2)}</span>
           </div>
           <div className="flex justify-between mb-2 text-sm">
-            <span>Service Fee:</span>
-            <span>Rs.{vehicle.service_fee.toFixed(2)}</span>
+            <span>Tax Fee:</span>
+            <span>Rs.{vehicle.tax_fee.toFixed(2)}</span>
           </div>
         </div>
         <div className="border-t border-gray-200 pt-4">

@@ -8,6 +8,7 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import { Helmet } from "react-helmet";
 import { AllActiveBookingDataTable } from "./components/AllActiveBookingTable";
 import { PendingVehicleDataTable } from "./components/PendingVehicleDataTable";
+import { ChartReviewOverview } from "./components/chart-area-interactive";
 
 const StaffDashboard = () => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -30,13 +31,14 @@ const StaffDashboard = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Helmet>
       <SidebarProvider>
-        <AppSidebar variant="inset" />
+        <AppSidebar variant="inset" collapsible="icon" />
         <SidebarInset>
           <SiteHeader />
           <div className="flex flex-1 flex-col">
             <div className="@container/main flex flex-1 flex-col gap-2">
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                 <SectionCards />
+                <div className="px-4 lg:px-6">{<ChartReviewOverview />}</div>
                 <div className="flex-col gap-6 xl:flex-row flex xl:gap-0">
                   <AllActiveBookingDataTable />
                   <PendingVehicleDataTable />

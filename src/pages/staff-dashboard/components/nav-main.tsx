@@ -1,10 +1,9 @@
-import {  PlusCircleIcon, type LucideIcon } from "lucide-react";
+import { PlusCircleIcon, type LucideIcon } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 import { NotificationPopover } from "@/features/notification/components/NotificationPopover";
 import { useState } from "react";
 import CreateAnnounsementModel from "@/features/notification/components/CreateAnnounsementModel";
-
 export function NavMain({
   items,
 }: {
@@ -36,14 +35,14 @@ export function NavMain({
           </SidebarMenu>
           <SidebarMenu>
             {items.map((item) => (
-              <Link to={item.url}>
+              <NavLink to={item.url} key={item.title} className={({ isActive }) => (isActive ? "bg-accent text-black rounded-md" : "text-muted-foreground hover:bg-accent hover:text-black hover:rounded-md")}>
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton tooltip={item.title}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              </Link>
+              </NavLink>
             ))}
           </SidebarMenu>
         </SidebarGroupContent>

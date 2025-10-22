@@ -18,16 +18,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { CheckCircle2Icon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, ColumnsIcon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from "lucide-react";
+import { CheckCircle2Icon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, ColumnsIcon, GripVerticalIcon, LoaderIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Booking } from "@/features/booking/bookingTypes";
 import { format } from "date-fns";
+import type { FullVehicle } from "@/features/vehicle/vehicleTypes";
 
 // Create a separate component for the drag handle
 function DragHandle({ id }: { id: number }) {
@@ -43,11 +43,11 @@ function DragHandle({ id }: { id: number }) {
   );
 }
 
-const columns: ColumnDef<Booking>[] = [
+const columns: ColumnDef<FullVehicle>[] = [
   {
     id: "drag",
     header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.booking_id} />,
+    cell: ({ row }) => <DragHandle id={row.original.vehicle_id} />,
   },
   {
     id: "select",
@@ -69,67 +69,50 @@ const columns: ColumnDef<Booking>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "customer",
-    header: () => <div className="w-full">Customer</div>,
-    cell: ({ row }) => <span>{row.original.customer_name}</span>,
-  },
-  {
     accessorKey: "vehicle",
     header: () => <div className="w-full">Vehicle</div>,
     cell: ({ row }) => (
       <span>
-        {row.original.vehicle.brand} {row.original.vehicle.model}
+        {row.original.brand} {row.original.model}
       </span>
     ),
   },
+ 
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "listing_status",
+    header: "Listing Status",
     cell: ({ row }) => (
       <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3 w-fit">
-        {row.original.status === "COMPLETED" ? <CheckCircle2Icon className="text-green-500 dark:text-green-400" /> : <LoaderIcon />}
-        {row.original.status}
+        {row.original.listing_status === "APPROVED" ? <CheckCircle2Icon className="text-green-500 dark:text-green-400" /> : <LoaderIcon />}
+        {row.original.listing_status}
       </Badge>
     ),
   },
   {
-    accessorKey: "days",
-    header: () => <div className="w-full">Days</div>,
-    cell: ({ row }) => <span>{(new Date(row.original.end_date).getTime() - new Date(row.original.start_date).getTime()) / (1000 * 60 * 60 * 24)} days</span>,
+    accessorKey: "date",
+    header: () => <div className="w-full">Listing Date</div>,
+    cell: ({ row }) => <span>{format(row.original.listing_date, "MMM dd, yyyy")}</span>,
   },
   {
-    accessorKey: "start date",
-    header: () => <div className="w-full">Start Date</div>,
-    cell: ({ row }) => <span>{format(row.original.start_date, "MMM dd, yyyy")}</span>,
+    accessorKey: "Vehicle Status",
+    header: () => <div className="w-full">Vehicle Status</div>,
+    cell: ({ row }) => <Badge variant={"outline"} >{row.original.available}</Badge>,
   },
+   {
+    accessorKey: "location",
+    header: () => <div className="w-full">Location</div>,
+    cell: ({ row }) => <span>{row.original.location + ", " + row.original.city}</span>,
+  }, 
   {
     accessorKey: "price",
-    header: "Revenue",
-    cell: ({ row }) => <span>{row.original.total_price.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>,
-  },
-  {
-    id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
-            <MoreVerticalIcon />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    header: "Price per Day",
+    cell: ({ row }) => <span>{row.original.price_per_day.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</span>,
   },
 ];
 
-function DraggableRow({ row }: { row: Row<Booking> }) {
+function DraggableRow({ row }: { row: Row<FullVehicle> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.booking_id,
+    id: row.original.vehicle_id,
   });
 
   return (
@@ -150,7 +133,7 @@ function DraggableRow({ row }: { row: Row<Booking> }) {
   );
 }
 
-export function DataTableFull({ data: initialData }: { data: Booking[] }) {
+export function AllVehiclesTable({ data: initialData }: { data: FullVehicle[] }) {
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -159,16 +142,9 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
   const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 });
   const sortableId = React.useId();
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
-  );
+  const sensors = useSensors(useSensor(MouseSensor, {}), useSensor(TouchSensor, {}), useSensor(KeyboardSensor, {}));
 
-  const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ booking_id }) => booking_id) || [],
-    [data]
-  );
+  const dataIds = React.useMemo<UniqueIdentifier[]>(() => data?.map(({ vehicle_id }) => vehicle_id) || [], [data]);
 
   const table = useReactTable({
     data,
@@ -180,7 +156,7 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
       columnFilters,
       pagination,
     },
-    getRowId: (row) => row.booking_id.toString(),
+    getRowId: (row) => row.vehicle_id.toString(),
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -208,35 +184,28 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
   }
 
   // Get current status filter
-  const statusFilter = (table.getColumn("status")?.getFilterValue() as string) ?? "";
+  const statusFilter = (table.getColumn("listing_status")?.getFilterValue() as string) ?? "";
 
   return (
     <div className="flex w-full flex-col justify-start gap-6">
       {/* ===== HEADER + FILTER BAR ===== */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-4 lg:px-6">
-        <div className="font-semibold text-lg">Bookings History</div>
+        <div className="font-semibold text-lg">Vehicle Listings</div>
 
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
           {/* Status Filter */}
           <div className="flex items-center gap-2">
             <Label htmlFor="status-filter" className="text-sm font-medium">
-              Filter by Status
+              Filter by Listing Status
             </Label>
-            <Select
-              value={statusFilter}
-              onValueChange={(value) =>
-                table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
-              }
-            >
+            <Select value={statusFilter} onValueChange={(value) => table.getColumn("listing_status")?.setFilterValue(value === "all" ? "" : value)}>
               <SelectTrigger id="status-filter" className="w-[160px]">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="canceled">Canceled</SelectItem>
               </SelectContent>
             </Select>
@@ -257,12 +226,7 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
                 .getAllColumns()
                 .filter((column) => typeof column.accessorFn !== "undefined" && column.getCanHide())
                 .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
+                  <DropdownMenuCheckboxItem key={column.id} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 ))}
@@ -274,22 +238,14 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
       {/* ===== TABLE ===== */}
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <div className="overflow-hidden rounded-lg border">
-          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
-          >
+          <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors} id={sortableId}>
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     ))}
                   </TableRow>
@@ -318,8 +274,7 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
         {/* ===== PAGINATION ===== */}
         <div className="flex items-center justify-between px-4">
           <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
 
           <div className="flex w-full items-center gap-8 lg:w-fit">
@@ -337,7 +292,7 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
                   <SelectValue placeholder={table.getState().pagination.pageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  {[10, 20].map((pageSize) => (
+                  {[5, 10, 20, 30].map((pageSize) => (
                     <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
                     </SelectItem>
@@ -351,39 +306,16 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
             </div>
 
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
+              <Button variant="outline" className="hidden h-8 w-8 p-0 lg:flex" onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
                 <ChevronsLeftIcon />
               </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
+              <Button variant="outline" className="size-8" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                 <ChevronLeftIcon />
               </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
+              <Button variant="outline" className="size-8" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
                 <ChevronRightIcon />
               </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
+              <Button variant="outline" className="hidden size-8 lg:flex" size="icon" onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>
                 <ChevronsRightIcon />
               </Button>
             </div>
@@ -393,4 +325,3 @@ export function DataTableFull({ data: initialData }: { data: Booking[] }) {
     </div>
   );
 }
-

@@ -3,7 +3,7 @@ import { SiteHeader } from "@/pages/host-dashboard/components/site-header";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Calendar, Edit, Eye, MapPin, MessageSquare, MoreVertical, Search, Trash2 } from "lucide-react";
+import { Calendar, Check, Edit, Eye, MapPin, MessageSquare, MoreVertical, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useGetVehicleByOwnerQuery, selectAllVehiclesByOwner } from "@/features/vehicle/vehicleSlice";
 import { useAppSelector } from "@/app/hook";
@@ -17,7 +17,6 @@ import EditVehicleModel from "@/features/vehicle/components/EditVehicleModel";
 import DeleteVehicleAlert from "@/features/vehicle/components/DeleteVehicleAlert";
 import { useNavigate } from "react-router";
 
-
 const MyVehiclesPage = () => {
   const { user } = useUser();
   const { isSignedIn, isLoaded } = useAuth();
@@ -27,12 +26,12 @@ const MyVehiclesPage = () => {
   const vehicles: FullVehicle[] = useAppSelector(selectAllVehiclesByOwner(userId));
 
   useEffect(() => {
-      if (isSignedIn && isLoaded && user?.publicMetadata.role === "OWNER") {
-        return;
-      } else {
-        router("/auth/signup");
-      }
-    }, [isLoaded, router, user, isSignedIn]);
+    if (isSignedIn && isLoaded && user?.publicMetadata.role === "OWNER") {
+      return;
+    } else {
+      router("/auth/signup");
+    }
+  }, [isLoaded, router, user, isSignedIn]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -128,6 +127,10 @@ const MyVehiclesPage = () => {
                                   setIsEditVehicleModalOpen(true);
                                 }}
                               >
+                                <Check className="mr-2" />
+                                Update
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
                                 <Edit className="mr-2" />
                                 Edit
                               </DropdownMenuItem>
@@ -155,7 +158,7 @@ const MyVehiclesPage = () => {
                             <p className="text-sm text-gray-600">{vehicle.vehicle_type.charAt(0).toUpperCase() + vehicle.vehicle_type.slice(1).toLocaleLowerCase()}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-gray-900">{vehicle.price_per_day.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</p>
+                            <p className="font-bold text-gray-900">{vehicle.base_price.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</p>
                             <p className="text-xs text-gray-600">per day</p>
                           </div>
                         </div>
@@ -215,13 +218,7 @@ const MyVehiclesPage = () => {
         {selectedVehicleId && selectedVehicleAvailability && (
           <EditVehicleModel isOpen={isEditVehicleModalOpen} onClose={() => setIsEditVehicleModalOpen(false)} vehicleId={selectedVehicleId!} availability={selectedVehicleAvailability!} />
         )}
-        {selectedVehicleToDelete && (
-          <DeleteVehicleAlert
-            isDeleteAlertOpen={isDeleteAlertOpen}
-            setIsDeleteAlertOpen={setIsDeleteAlertOpen}
-            selectedVehicleToDelete={selectedVehicleToDelete!}
-          />
-        )}
+        {selectedVehicleToDelete && <DeleteVehicleAlert isDeleteAlertOpen={isDeleteAlertOpen} setIsDeleteAlertOpen={setIsDeleteAlertOpen} selectedVehicleToDelete={selectedVehicleToDelete!} />}
       </SidebarInset>
     </SidebarProvider>
   );

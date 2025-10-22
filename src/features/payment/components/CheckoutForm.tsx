@@ -188,6 +188,7 @@ const CheckoutForm = ({ stateData }: { stateData: RentalStateDetails }) => {
                 <Button type="submit" disabled={!stripe || loading} className="px-8">
                   {loading ? "Processing..." : "Pay"}
                 </Button>
+                <Button onClick={()=>{navigate("/renter-dashboard", { replace: true });}} disabled={!stripe || loading} className="px-8">Cancel</Button>
               </form>
             </Form>
           </div>

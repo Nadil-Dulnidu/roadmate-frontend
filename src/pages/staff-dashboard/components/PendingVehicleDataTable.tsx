@@ -195,7 +195,7 @@ export function PendingVehicleDataTable() {
     <div className="flex w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center justify-between w-full gap-2">
-          <div className="font-semibold text-lg">Recent Listing Requests</div>
+          <div className="font-semibold text-lg">Vehicle Listing Requests</div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
