@@ -14,6 +14,8 @@ import { useAddVehicleMutation } from "../vehicleSlice";
 import type { NewVehicle } from "../vehicleTypes";
 import { Plus } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import type { NotificationPayload, NotificationTypes } from "@/features/notification/notificationType";
+import { useSendNotificationMutation } from "@/features/notification/notificationSlice";
 
 interface AddMentorModalProp {
   isOpen: boolean;
@@ -81,6 +83,7 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
   const { getToken } = useAuth();
   const [token, setToken] = useState<string | null>(null);
   const { user } = useUser();
+  const [sendNotification] = useSendNotificationMutation();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -116,6 +119,22 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
     };
     fetchToken();
   }, [getToken, user]);
+
+  const createNotification = async ({ type, title, message }: { type: NotificationTypes[keyof NotificationTypes]; title: string; message: string }) => {
+      const token = await getToken({ template: "RoadMate" });
+      const userId = user?.id;
+      const notification: NotificationPayload = {
+        user_id: userId,
+        title: title,
+        notification_type: type,
+        message: message,
+      };
+      const { error } = await sendNotification({ token: token, notification: notification });
+      if (error) {
+        toast.error("Failed to send notification.");
+        console.error("Notification error:", error);
+      }
+    };
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -165,6 +184,11 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
       await addVehicle({ newVehicle: formData, token }).unwrap();
       toast.success("Vehicle added successfully");
       onClose();
+      await createNotification({
+        type: "REVIEW",
+        title: "Vehicle Listed Successfully",
+        message: `Your vehicle ${data.brand} ${data.model} has been listed successfully on RoadMate.`,
+      });
       form.reset();
     } catch (error) {
       if (error instanceof Error) {

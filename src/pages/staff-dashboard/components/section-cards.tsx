@@ -1,23 +1,42 @@
-import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetAllBookingQuery, selectAllBookings } from "@/features/booking/bookingSlice";
+import { useGetUsersQuery, selectAllUsers } from "@/features/user/userSlice";
+import { useAppSelector } from "@/app/hook";
+import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 
 export function SectionCards() {
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = await getToken({ template: "RoadMate" });
+      setAuthToken(token);
+    };
+    fetchToken();
+  }, [getToken]);
+
+  const { isSuccess: isBookingSuccess } = useGetAllBookingQuery({ token: authToken, status: ["ACTIVE", "COMPLETED", "CONFIRMED"] }, { skip: !authToken });
+  const bookings = useAppSelector(selectAllBookings(authToken, ["ACTIVE", "COMPLETED", "CONFIRMED"]));
+
+  const totalRevenue = bookings.reduce((total, booking) => {
+    const bookingDays = booking.start_date && booking.end_date ? (new Date(booking.end_date).getTime() - new Date(booking.start_date).getTime()) / (1000 * 60 * 60 * 24) : 1;
+    return total + ((booking.total_price) - booking.vehicle.base_price * bookingDays || 0);
+  }, 0);
+
+  const { isSuccess: isUserSuccess } = useGetUsersQuery({ roles: [], token: authToken }, { skip: !authToken });
+  const users = useAppSelector(selectAllUsers(authToken, []));
+
   return (
     <div className=":data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader className="relative">
           <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            $1,250.00
-          </CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{isBookingSuccess && totalRevenue.toLocaleString("en-US", { style: "currency", currency: "LKR" })}</CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -29,17 +48,13 @@ export function SectionCards() {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Trending up this month <TrendingUpIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
+          <div className="text-muted-foreground">Visitors for the last 6 months</div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
         <CardHeader className="relative">
-          <CardDescription>New Customers</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            1,234
-          </CardTitle>
+          <CardDescription>Total Users</CardDescription>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{isUserSuccess && users.length}</CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingDownIcon className="size-3" />
@@ -51,17 +66,13 @@ export function SectionCards() {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Down 20% this period <TrendingDownIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Acquisition needs attention
-          </div>
+          <div className="text-muted-foreground">Acquisition needs attention</div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
         <CardHeader className="relative">
-          <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            45,678
-          </CardTitle>
+          <CardDescription>Total Bookings</CardDescription>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{bookings.length}</CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -79,9 +90,7 @@ export function SectionCards() {
       <Card className="@container/card">
         <CardHeader className="relative">
           <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            4.5%
-          </CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">4.5%</CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -97,5 +106,5 @@ export function SectionCards() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

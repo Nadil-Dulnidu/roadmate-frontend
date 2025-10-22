@@ -6,6 +6,8 @@ import type { Review } from "../reviewTypes";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import type { NotificationPayload, NotificationTypes } from "@/features/notification/notificationType";
+import { useSendNotificationMutation } from "@/features/notification/notificationSlice";
 
 interface AddReviewSectionProp {
   vehicleId: number;
@@ -19,6 +21,23 @@ function AddReviewSection({ vehicleId }: AddReviewSectionProp) {
   const { user } = useUser();
   const { getToken, isSignedIn } = useAuth();
   const [createReview] = useCreateReviewMutation();
+  const [sendNotification] = useSendNotificationMutation();
+
+  const createNotification = async ({ type, title, message }: { type: NotificationTypes[keyof NotificationTypes]; title: string; message: string }) => {
+    const token = await getToken({ template: "RoadMate" });
+    const userId = user?.id;
+    const notification: NotificationPayload = {
+      user_id: userId,
+      title: title,
+      notification_type: type,
+      message: message,
+    };
+    const { error } = await sendNotification({ token: token, notification: notification });
+    if (error) {
+      toast.error("Failed to send notification.");
+      console.error("Notification error:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +57,11 @@ function AddReviewSection({ vehicleId }: AddReviewSectionProp) {
       };
       await createReview({ token, review: reviewData }).unwrap();
       toast.success("Review submitted successfully");
+      await createNotification({
+        type: "REVIEW",
+        title: "New Review Submitted",
+        message: `Your review for vehicle ${vehicleId} has been submitted successfully.`,
+      });
     } catch (error) {
       console.error("Error submitting review:", error);
       toast.error("Failed to submit review");
@@ -95,7 +119,7 @@ function AddReviewSection({ vehicleId }: AddReviewSectionProp) {
             disabled={isSubmitting || rating === 0 || !name.trim() || !comment.trim() || user?.publicMetadata.role !== "RENTER"}
             className="w-full bg-black text-white py-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
           >
-            {isSubmitting ? "Submitting..." : (user?.publicMetadata.role === "RENTER" ? "Submit Review" : "Only Renters can Submit")}
+            {isSubmitting ? "Submitting..." : user?.publicMetadata.role === "RENTER" ? "Submit Review" : "Only Renters can Submit"}
           </Button>
         ) : (
           <Link to="/auth/signup">

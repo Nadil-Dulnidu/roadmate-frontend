@@ -35,9 +35,10 @@ export function ChartAreaInteractive({ bookings }: ChartAreaInteractiveProps) {
     const map: Record<string, { date: string; totalRevenue: number; bookingCount: number }> = {};
 
     bookings.forEach((booking) => {
+      const bookingDays = booking.start_date && booking.end_date ? (new Date(booking.end_date).getTime() - new Date(booking.start_date).getTime()) / (1000 * 60 * 60 * 24) : 1; 
       const date = new Date(booking.created_at).toISOString().split("T")[0];
       if (!map[date]) map[date] = { date, totalRevenue: 0, bookingCount: 0 };
-      map[date].totalRevenue += booking.vehicle.base_price || 0;
+      map[date].totalRevenue += (booking.vehicle.base_price || 0) * bookingDays;
       map[date].bookingCount += 1;
     });
 
@@ -93,8 +94,8 @@ export function ChartAreaInteractive({ bookings }: ChartAreaInteractiveProps) {
           <AreaChart data={filteredData}>
             <defs>
               <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="10%" stopColor="teal" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="teal" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="black" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="black" stopOpacity={0.1} />
               </linearGradient>
             </defs>
 
@@ -132,7 +133,7 @@ export function ChartAreaInteractive({ bookings }: ChartAreaInteractiveProps) {
               }
             />
 
-            <Area type="monotone" dataKey="totalRevenue" name="Total Revenue (Rs.)" stroke="teal" fill="url(#fillRevenue)" />
+            <Area type="monotone" dataKey="totalRevenue" name="Total Revenue (Rs.)" stroke="black" fill="url(#fillRevenue)" />
           </AreaChart>
         </ChartContainer>
       </CardContent>

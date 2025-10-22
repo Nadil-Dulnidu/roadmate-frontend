@@ -1,5 +1,4 @@
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -8,15 +7,44 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useGetAllBookingByOwnerIdQuery, selectBookingsByOwner } from "@/features/booking/bookingSlice"
+import { useGetVehicleByOwnerQuery, selectAllVehiclesByOwner } from "@/features/vehicle/vehicleSlice"
+import { useAppSelector } from "@/app/hook"
+import { useEffect, useState } from "react";
+import { useUser,useAuth } from "@clerk/clerk-react";
 
 export function SectionCards() {
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const { getToken } = useAuth();
+  const { user } = useUser();
+  const userId = user?.id;
+
+  useEffect(() => {
+      const fetchToken = async () => {
+        const token = await getToken({ template: "RoadMate" });
+        setAuthToken(token);
+      };
+      fetchToken();
+    }, [getToken]);
+
+    const { isSuccess: isBookingSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: [] }, { skip: !userId || !authToken });
+    const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, []));
+
+    const { isSuccess: isVehicleSuccess } = useGetVehicleByOwnerQuery(userId);
+    const vehicles = useAppSelector(selectAllVehiclesByOwner(userId));
+
+    const totalRevenue = bookings.reduce((total, booking) => {
+      const bookingDays = booking.start_date && booking.end_date ? (new Date(booking.end_date).getTime() - new Date(booking.start_date).getTime()) / (1000 * 60 * 60 * 24) : 1; 
+      return total + (booking.vehicle.base_price || 0) * bookingDays;
+    }, 0);
+
   return (
     <div className=":data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader className="relative">
           <CardDescription>Total Revenue</CardDescription>
           <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            $1,250.00
+            {isBookingSuccess &&  totalRevenue.toLocaleString("en-US", { style: "currency", currency: "LKR" })}
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
@@ -36,9 +64,9 @@ export function SectionCards() {
       </Card>
       <Card className="@container/card">
         <CardHeader className="relative">
-          <CardDescription>New Customers</CardDescription>
+          <CardDescription>Total Bookings</CardDescription>
           <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            1,234
+            {isBookingSuccess && bookings.length}
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
@@ -58,9 +86,9 @@ export function SectionCards() {
       </Card>
       <Card className="@container/card">
         <CardHeader className="relative">
-          <CardDescription>Active Accounts</CardDescription>
+          <CardDescription>Total Listings</CardDescription>
           <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            45,678
+            {isVehicleSuccess && vehicles.length}
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">

@@ -34,8 +34,8 @@ const HostDashboard = () => {
     fetchToken();
   }, [getToken]);
 
-  const { isSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: [] }, { skip: !userId || !authToken });
-  const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, []));
+  const { isSuccess } = useGetAllBookingByOwnerIdQuery({ token: authToken, ownerId: userId, status: ["CONFIRMED", "ACTIVE" , "COMPLETED"] }, { skip: !userId || !authToken });
+  const bookings = useAppSelector(selectBookingsByOwner(authToken, userId, ["CONFIRMED", "ACTIVE" , "COMPLETED"]));
 
   return (
     <SidebarProvider>
