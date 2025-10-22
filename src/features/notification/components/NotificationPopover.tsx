@@ -146,7 +146,7 @@ export function NotificationPopover() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 file:rounded-lg shadow-lg border border-slate-200 p-0 z-50 max-h-96 overflow-hidden" sideOffset={8} align="end">
+      <PopoverContent className="w-80  file:rounded-lg shadow-lg border border-slate-200 p-0 z-50 max-h-96 overflow-hidden" sideOffset={8} align="end">
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold ">Notifications</h3>
@@ -159,7 +159,7 @@ export function NotificationPopover() {
             </div>
           </div>
         </div>
-        <div className="max-h-80 overflow-y-auto">{renderNotifications()}</div>
+        <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent">{renderNotifications()}</div>
       </PopoverContent>
     </Popover>
   );

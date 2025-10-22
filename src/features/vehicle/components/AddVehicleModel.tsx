@@ -209,7 +209,7 @@ const AddVehicleModel = ({ isOpen, onClose }: AddMentorModalProp) => {
             <DialogTitle className="font-semibold text-xl">Rent Your Vehicle</DialogTitle>
           </DialogHeader>
           {isLoading ? (
-            <div className="flex justify-center items-center">
+            <div className="flex-col flex justify-center items-center">
               <LoadingSpinner size={35} stroke={3.5} speed={1} color="black" />
               <div>Listing your vehicle...</div>
             </div>
