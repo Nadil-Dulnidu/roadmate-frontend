@@ -123,7 +123,7 @@ function AddReviewSection({ vehicleId }: AddReviewSectionProp) {
           </Button>
         ) : (
           <Link to="/auth/signup">
-            <Button className="w-full bg-black text-white py-6 rounded-lg font-medium hover:bg-gray-800 transition-colors">Sign in to submit review</Button>
+            <Button className="w-full bg-black text-white py-6 rounded-lg font-medium hover:bg-gray-800 transition-color">Sign in to submit review</Button>
           </Link>
         )}
       </form>

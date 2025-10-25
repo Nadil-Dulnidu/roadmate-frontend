@@ -10,7 +10,7 @@ import { store } from "./app/store.ts";
 import { Toaster } from "./components/ui/sonner.tsx";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-
+  
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
 }
