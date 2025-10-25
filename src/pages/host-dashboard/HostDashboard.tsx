@@ -13,18 +13,18 @@ import { UpcommingBookingDataTable } from "@/pages/host-dashboard/components/Upc
 
 const HostDashboard = () => {
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const { getToken, isSignedIn, isLoaded } = useAuth();
+  const { getToken, isLoaded } = useAuth();
   const { user } = useUser();
   const router = useNavigate();
   const userId = user?.id;
 
   useEffect(() => {
-    if (isSignedIn && isLoaded && user?.publicMetadata.role === "OWNER") {
+    if (isLoaded && user?.publicMetadata.role === "OWNER") {
       return;
     } else {
       router("/auth/signup");
     }
-  }, [isLoaded, router, user, isSignedIn]);
+  }, [isLoaded, router, user]);
 
   useEffect(() => {
     const fetchToken = async () => {
