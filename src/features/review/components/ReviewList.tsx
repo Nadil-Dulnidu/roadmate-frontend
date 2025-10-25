@@ -8,7 +8,7 @@ interface ReviewListProp {
   vehicleId: number;
 }
 const ReviewList = ({ vehicleId }: ReviewListProp) => {
-  const { isError, isLoading, isSuccess, error } = useGetReviewsByVehicleIdQuery({ vehicleId });
+  useGetReviewsByVehicleIdQuery({ vehicleId });
   const reviewList = useAppSelector(selectReviewsByVehicle(vehicleId));
 
   return (
