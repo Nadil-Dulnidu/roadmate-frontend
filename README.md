@@ -2,6 +2,11 @@
 
 RoadMate is a modern, secure, and user-friendly web-based Vehicle Rental Platform built to streamline the vehicle renting experience for both renters and vehicle owners. It provides a centralized digital environment where users can browse vehicles, book rentals, manage bookings, and securely handle payments. RoadMate leverages modern technologies including Spring Boot, Clerk for authentication, Stripe for payments, and a scalable cloud-ready architecture.
 
+## 🔗 Link to the Project Repository
+
+- Frontend Repository: [RoadMate Frontend](https://github.com/Nadil-Dulnidu/roadmate-frontend)
+- Backend Repository: [RoadMate Backend](https://github.com/Nadil-Dulnidu/roadmate-server)
+
 ## 🤔 Problem Space
 ### Problems to Solve / Requirements to Create
 
