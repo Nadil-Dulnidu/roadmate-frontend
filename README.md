@@ -135,20 +135,64 @@ Owner Flow
 Staff/Admin Flow
 * Manage bookings → oversee system → ensure compliance
 
-### ✍️ Low-Fidelity Wireframe Concepts
+### Low-Fidelity Wireframe Concepts
 
-* Homepage: Search bar, vehicle categories, featured listings
-* Vehicle Listing Page: Grid of vehicles with filters
-* Vehicle Profile Page: Full details + availability calendar
-* Checkout Page: Payment form + summary
-* Renter Dashboard: Manages bookings and reviews
-* Host Dashboard: Manages vehicle listings
+Homepage: Search bar, vehicle categories, featured listings
+    
+![Homepage Wireframe](./public/home-page-wireframe.png)
+
+Vehicle Listing Page: Grid of vehicles with filters
+
+![Vehicle Listing Wireframe](./public/vehicle-listing-wireframe.png)
+
+Vehicle Profile Page: Full details + availability calendar
+
+![Vehicle Profile Wireframe](./public/vehicle-profile-wireframe.png)
+
+### High-fidelity design
+
+HomePage Design
+
+![Homepage Design](./public/home-page.jpeg)
+
+Vehicle Profile Page Design
+
+![Vehicle Profile Design](./public/vehicle-profile.jpeg)
+
+Renter Dashboard Design
+
+![Renter Dashboard Design](./public/renter-dashboard.png)
+
+Vehicle Owner Dashboard Design
+
+![Owner Dashboard Design](./public/vehicle-owner-dashboard.png)
+
+Checkout Page Design
+
+![Checkout Page Design](./public/checkout-page.png)
+
+### Design System 🎨
+
+#### ShadCN UI as the Design System
+
+For this project, ShadCN UI was used as the primary design system to build a consistent, modern, and scalable user interface. ShadCN provides a collection of high-quality, accessible components built on top of Radix UI and styled with Tailwind CSS, making it an excellent fit for a frontend built with React and TypeScript.
+
+#### How ShadCN Was Utilized
+
+ShadCN UI was integrated into the project to:
+
+* Build reusable UI components like buttons, forms, cards, modals, dropdowns, and navigation bars.
+* Maintain consistency in typography, spacing, colors, and interactions using Tailwind utility classes.
+* Customize components directly within the project, allowing fine-tuned control over styles without relying on external library updates.
+* Improve user experience with polished and well-structured UI patterns that align with modern standards.
+
+Using ShadCN UI helped accelerate development and ensured the application maintains a professional, cohesive look throughout all user-facing pages.
 
 ## 🏗️ Development Phase
 
 ### Technology Stack Selection
 
-#### Frontend - React.js with RTK Query and ShadCN
+#### Frontend - React.js with RTK Query
 
 #### Why React.js?
 * **Component-Based Architecture:** Enables reusable UI components, making the frontend modular and maintainable.
@@ -161,15 +205,6 @@ Staff/Admin Flow
 * **Automatic Caching:** RTK Query automatically caches data and only refetches when required, which improves performance by reducing redundant API calls, especially when displaying static hotel information or previously searched results.
 * **Optimized for Redux**: As part of the Redux Toolkit, RTK Query integrates seamlessly with Redux, providing a structured and powerful way to handle server-side data fetching while maintaining consistent application state.
 * **Error Handling & Retries:** RTK Query comes with built-in error handling and retry logic for failed API calls, ensuring a more resilient user experience, especially during peak times or unstable network conditions.
-
-#### Why ShadCN for UI?
-
-* **Modern, Customizable Components:** ShadCN UI provides a collection of unstyled and customizable components built on top of Radix UI, giving developers full control over styling while maintaining accessibility and consistency.
-* **Consistent Design System:** The library promotes a unified design approach using Tailwind CSS, ensuring your UI elements follow a predictable and maintainable visual pattern across the entire application.
-* **Highly Accessible:** All components follow accessible design standards (ARIA-compliant), which is essential for building inclusive applications such as user-facing booking systems.
-* **Developer-Friendly:** ShadCN UI allows developers to copy components directly into their codebase, enabling full flexibility to modify and extend components without depending on an external library’s versioning constraints.
-* **Rich Component Collection:** From buttons, dialogs, dropdowns, and navigation menus to complex UI patterns, ShadCN UI offers a wide range of well-structured, production-ready components ideal for building a polished frontend experience.
-* **Perfect Fit for React + Tailwind Apps:** Since it fully embraces Tailwind CSS, ShadCN UI integrates seamlessly with modern React applications, ensuring rapid development while preserving design quality.
 
 #### Backend - Spring Boot
 
